@@ -3,58 +3,142 @@
 @tailwind utilities;
 
 :root {
-  --primary: #ff85b3;
-  --primary-dark: #ff5c9d;
-  --primary-light: #fff0f6;
-  --secondary: #60a5fa;
-  --accent: #f472b6;
-  --primary-color: #ff85b3;
-  --secondary-color: #60a5fa;
+  --primary: #ff6b9e;
+  --primary-dark: #f43f5e;
+  --primary-light: #ffe4e6;
+  --secondary: #8b5cf6;
+  --accent: #c084fc;
+  --primary-color: #ff6b9e;
+  --secondary-color: #8b5cf6;
   --accent-blue: #3b82f6;
   --text-muted: #64748b;
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #f5f3ff;
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans;
+    @apply text-slate-800 font-sans antialiased bg-slate-50 selection:bg-primary-light selection:text-primary-dark;
   }
 }
 
 .shadow-premium {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 0px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .shadow-glass {
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 @layer components {
   .premium-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/40 shadow-premium rounded-3xl p-8;
+    @apply glass-panel shadow-premium rounded-[2rem] p-8 md:p-10 transition-all duration-300;
   }
   
   .glass-card {
-    @apply bg-white/20 backdrop-blur-3xl border border-white/20 shadow-glass rounded-3xl p-8;
+    @apply bg-white/40 backdrop-blur-3xl border border-white/50 shadow-glass rounded-[2rem] p-8 transition-all hover:bg-white/50;
   }
 
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-3xl transition-all font-extrabold uppercase tracking-widest shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95;
+    @apply bg-gradient-to-r from-primary to-accent hover:from-primary-dark hover:to-secondary text-white px-8 py-4 rounded-full transition-all duration-300 font-extrabold uppercase tracking-widest shadow-lg hover:shadow-[0_10px_25px_-5px_var(--primary)] hover:-translate-y-1 active:scale-95 active:translate-y-0.5;
   }
 
   .btn-secondary {
-    @apply bg-slate-100 hover:bg-slate-200 text-slate-700 px-8 py-4 rounded-3xl transition-all font-bold;
+    @apply bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-100 hover:border-slate-200 px-8 py-4 rounded-full transition-all duration-300 font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95;
+  }
+  
+  .input-field {
+    @apply w-full px-6 py-4 bg-slate-50/50 border-2 border-slate-100/80 focus:border-primary focus:bg-white focus:shadow-[0_0_0_4px_rgba(255,107,158,0.1)] rounded-2xl outline-none transition-all duration-300 font-semibold text-slate-700 placeholder:text-slate-400 placeholder:font-medium;
   }
   
   .cat-ears {
-    @apply relative after:content-[''] after:absolute after:-top-4 after:left-8 after:w-10 after:h-10 after:bg-primary after:rotate-45 after:-z-10 before:content-[''] before:absolute before:-top-4 before:right-8 before:w-10 before:h-10 before:bg-primary before:rotate-45 before:-z-10;
+    @apply relative 
+           after:content-[''] after:absolute after:-top-5 after:left-[15%] after:w-16 after:h-16 after:bg-white after:border-t after:border-l after:border-white/40 after:rotate-45 after:-z-10 after:rounded-tl-2xl after:shadow-sm
+           before:content-[''] before:absolute before:-top-5 before:right-[15%] before:w-16 before:h-16 before:bg-white before:border-t before:border-r before:border-white/40 before:rotate-45 before:-z-10 before:rounded-tr-2xl before:shadow-sm;
   }
 }
 
 .animate-pulse-soft {
-  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse-soft 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.3; }
+.animate-float-slow {
+  animation: float 12s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float 18s ease-in-out infinite reverse;
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.blob-shape {
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: morph 8s ease-in-out infinite both alternate;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes morph {
+  0%, 100% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  }
+  34% {
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+  }
+  67% {
+    border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }

@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -18,7 +17,6 @@ export default function CreatorPanel() {
       if (!stored) { router.push("/"); return; }
       const user = JSON.parse(stored);
       
-      // Verification - usually 'Creator' role would be manually set in DB for the first time
       if (user.role !== 'Creator' && user.name !== 'admin_cat') {
         alert("Wait! Only the original Creator can enter this chamber. 🐾🚪");
         router.push("/dashboard");
@@ -37,10 +35,7 @@ export default function CreatorPanel() {
         setInvites(Array.isArray(invData) ? invData : []);
         
         if (Array.isArray(uData)) {
-          // Identify all Headmasters
           const hmList = uData.filter(u => u.role === 'Headmaster');
-          
-          // Calculate stats for each Headmaster
           const hmWithStats = hmList.map(hm => {
             const teachers = uData.filter(u => u.role === 'Teacher' && u.invited_by === hm.id);
             const teacherIds = teachers.map(t => t.id);
@@ -58,8 +53,6 @@ export default function CreatorPanel() {
       setLoading(false);
     };
     init();
-    
-    // Auto-Sync every 15 seconds
     const syncInterval = setInterval(init, 15000);
     return () => clearInterval(syncInterval);
   }, [router]);
@@ -73,8 +66,6 @@ export default function CreatorPanel() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      
-      // Update local state
       setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
       alert("Subscription renewed successfully! 👑✅");
     } catch (e) { alert("Renewal Failed: " + e.message); }
@@ -90,8 +81,6 @@ export default function CreatorPanel() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      
-      // Update local state
       setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
       alert("School has been FROZEN. 🧊 access is now blocked.");
     } catch (e) { alert("Freeze Failed: " + e.message); }
@@ -128,158 +117,189 @@ export default function CreatorPanel() {
     } catch (e) { alert("Reset Failed: " + e.message); }
   };
 
-  if (loading) return <div className="flex-center" style={{ height: "100vh" }}>Accessing Secret Chamber... 🐾</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-6">
+      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6"></div>
+      <p className="font-black text-[10px] uppercase tracking-widest opacity-50">Accessing Secret Chamber...</p>
+    </div>
+  );
 
   return (
-    <div className="container" style={{ padding: "4rem 1rem" }}>
-      <header className="premium-card cat-ears" style={{ background: "linear-gradient(135deg, #1a1a1a, #333)", color: "white", marginBottom: "3rem", padding: "3rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
-        <div>
-           <h1 style={{ fontSize: "3rem", color: "var(--primary-color)", margin: 0 }}>Creator Workspace 🌌</h1>
-           <p style={{ opacity: 0.8, margin: 0 }}>Manage the growth of Cat Academy and its schools. <button title="Sync Data" style={{ background: "none", border: "none", fontSize: "1rem", cursor: "pointer", marginLeft: "10px", opacity: 0.3 }} onClick={() => window.location.reload()}>🔄</button></p>
-        </div>
-        <button className="btn-secondary" style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "10px 25px" }} onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}>Logout 🚪</button>
-      </header>
+    <div className="min-h-screen bg-slate-900 text-slate-300 relative overflow-hidden selection:bg-primary/30">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none -y-10">
+         <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
+         <div className="absolute bottom-0 left-0 w-[50rem] h-[50rem] bg-indigo-500/5 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }}></div>
+      </div>
 
-      <div className="premium-card cat-ears" style={{ marginBottom: "3rem" }}>
-        <h2 style={{ marginBottom: "2rem" }}>Active Schools & Headmasters 🏫</h2>
-        {headmasters.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "3rem", opacity: 0.5 }}>
-             <p style={{ fontSize: "5rem" }}>🏢</p>
-             <h3>No schools yet. Generate a code above to start!</h3>
+      <div className="container mx-auto px-6 py-12 max-w-7xl relative z-10">
+        
+        {/* Header Section */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 animate-fade-in">
+           <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 shadow-2xl">
+                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Founder Protocol Active</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">Creator <span className="text-primary-light/40 italic">Workspace</span></h1>
+              <p className="text-lg font-medium text-slate-400/80 mt-2">Oversee the growth and integrity of the Academy network.</p>
+           </div>
+           
+           <div className="flex items-center gap-4">
+              <button 
+                onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}
+                className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white hover:bg-white/10 transition-all"
+              >
+                Terminate Session
+              </button>
+           </div>
+        </header>
+
+        {/* Global Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 animate-slide-up">
+           <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Total Schools</p>
+              <h2 className="text-4xl font-black text-white">{headmasters.length}</h2>
+           </div>
+           <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Active Staff</p>
+              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + hm.teacherCount, 0)}</h2>
+           </div>
+           <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl md:col-span-2 bg-gradient-to-br from-primary/10 to-transparent">
+              <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-4">Total Scholar Population</p>
+              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + hm.studentCount, 0)} <span className="text-lg opacity-40 font-normal ml-2">Registered Kittens</span></h2>
+           </div>
+        </div>
+
+        {/* Main Content Areas */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          
+          {/* Schools Management */}
+          <div className="lg:col-span-2 space-y-8">
+             <div className="flex items-center justify-between px-2">
+                <h3 className="text-2xl font-black text-white tracking-tight">Active Faculty Licenses</h3>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Real-time Sync</span>
+             </div>
+
+             <div className="grid grid-cols-1 gap-6">
+                {headmasters.map(hm => {
+                  const isExpired = hm.subscription_expires_at && new Date(hm.subscription_expires_at) < new Date();
+                  return (
+                    <div key={hm.id} className={`group bg-white/5 border border-white/10 p-8 rounded-[2rem] hover:bg-white/[0.08] transition-all shadow-xl ${isExpired ? 'ring-1 ring-red-500/20' : ''}`}>
+                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                          <div className="flex items-center gap-6">
+                             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner ${isExpired ? 'bg-red-500/10 text-red-400' : 'bg-primary/20 text-primary'}`}>
+                                {(hm.name || "S")[0].toUpperCase()}
+                             </div>
+                             <div>
+                                <h4 className="text-xl font-black text-white mb-1 group-hover:text-primary transition-colors">{hm.name}</h4>
+                                <div className="flex items-center gap-3">
+                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {hm.id.slice(0, 8)}</span>
+                                   <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm ${isExpired ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
+                                      {isExpired ? 'Frozen' : 'Verified'}
+                                   </span>
+                                </div>
+                             </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-10">
+                             <div className="text-center">
+                                <p className="text-2xl font-black text-white leading-none mb-2">{hm.teacherCount}</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Faculty</p>
+                             </div>
+                             <div className="text-center">
+                                <p className="text-2xl font-black text-white leading-none mb-2">{hm.studentCount}</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Students</p>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                          <div className="space-y-1">
+                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">License Expiry</p>
+                             <p className="text-sm font-bold text-white">{hm.subscription_expires_at ? new Date(hm.subscription_expires_at).toLocaleDateString() : 'Perpetual Access'}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                             <select 
+                               className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-xs font-black text-white focus:ring-2 ring-primary/40 outline-none transition-all"
+                               value={renewDuration}
+                               onChange={(e) => setRenewDuration(e.target.value)}
+                             >
+                                <option value="1">1 Month</option>
+                                <option value="3">3 Months</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">1 Year</option>
+                             </select>
+                             <button className="px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all" onClick={() => renewSubscription(hm.id, renewDuration)}>Renew</button>
+                             <button className="px-6 py-3 bg-white/5 border border-red-500/30 text-red-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all" onClick={() => freezeSubscription(hm.id)}>Freeze</button>
+                          </div>
+                       </div>
+                    </div>
+                  );
+                })}
+                {headmasters.length === 0 && (
+                   <div className="p-20 border-2 border-dashed border-white/5 rounded-[2rem] text-center">
+                      <p className="text-4xl mb-4 opacity-10">🏢</p>
+                      <p className="text-sm font-bold text-slate-500 uppercase tracking-widest italic">The network is currently silent.</p>
+                   </div>
+                )}
+             </div>
           </div>
-        ) : (
-          <div className="grid-cols" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "1.5rem" }}>
-            {headmasters.map(hm => (
-              <div key={hm.id} className="premium-card" style={{ border: "1px solid #eee", background: "white" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                  <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-                     <div style={{ width: "50px", height: "50px", borderRadius: "15px", background: "var(--primary-color)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: "800" }}>
-                        {(hm.name || "S")[0].toUpperCase()}
-                     </div>
-                     <div>
-                        <h3 style={{ margin: 0 }}>{hm.name}</h3>
-                        <p style={{ margin: 0, opacity: 0.5, fontSize: "0.8rem" }}>Principal • Joined {new Date(hm.created_at).toLocaleString()}</p>
-                     </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <span style={{ fontSize: "0.7rem", display: "block", color: "#666", marginBottom: "4px" }}>STATUS</span>
-                    {hm.subscription_expires_at && new Date(hm.subscription_expires_at) < new Date() ? (
-                        <span style={{ fontSize: "0.75rem", background: "#fee2e2", color: "#ef4444", padding: "4px 10px", borderRadius: "10px", fontWeight: "700" }}>EXPIRED 🛑</span>
-                    ) : (
-                        <span style={{ fontSize: "0.75rem", background: "#e6ffec", color: "var(--accent-green)", padding: "4px 10px", borderRadius: "10px", fontWeight: "700" }}>ACTIVE ✅</span>
-                    )}
-                    <span style={{ fontSize: "0.65rem", display: "block", opacity: 0.5, marginTop: "5px" }}>Expires: {hm.subscription_expires_at ? new Date(hm.subscription_expires_at).toLocaleDateString() : 'Never'}</span>
-                  </div>
-                </div>
-                
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <div style={{ background: "#f8f9ff", padding: "15px", borderRadius: "15px", textAlign: "center", border: "1px solid #eef2ff" }}>
-                    <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "800", color: "#4f46e5" }}>{hm.teacherCount}</p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", opacity: 0.6, fontWeight: "700" }}>TEACHERS 👨‍🏫</p>
-                  </div>
-                  <div style={{ background: "#fff5f8", padding: "15px", borderRadius: "15px", textAlign: "center", border: "1px solid #ffeef4" }}>
-                    <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "800", color: "#db2777" }}>{hm.studentCount}</p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", opacity: 0.6, fontWeight: "700" }}>STUDENTS 🎒</p>
-                  </div>
-                </div>
-                
-                <div style={{ marginTop: "1rem", padding: "10px", borderTop: "1px dashed #eee", display: "flex", gap: "10px", alignItems: "center" }}>
+
+          {/* Controls & Invites */}
+          <div className="space-y-8">
+             <div className="bg-gradient-to-br from-primary/20 to-slate-800 p-8 rounded-[2rem] border border-primary/20 shadow-2xl">
+                <h4 className="text-xl font-black text-white mb-6">Issue Enrollment Code</h4>
+                <div className="space-y-4 mb-8">
+                   <p className="text-sm font-medium text-slate-400 italic">Generate standard verification codes for new school owners.</p>
                    <select 
-                     style={{ flex: 1, padding: "8px", borderRadius: "10px", border: "1px solid #ddd", fontSize: "0.8rem" }}
-                     value={renewDuration}
-                     onChange={(e) => setRenewDuration(e.target.value)}
+                     className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white outline-none focus:ring-2 ring-primary/50 transition-all"
+                     value={duration}
+                     onChange={(e) => setDuration(e.target.value)}
                    >
-                      <option value="1">+1 Month</option>
-                      <option value="3">+3 Months</option>
-                      <option value="6">+6 Months</option>
-                      <option value="12">+1 Year</option>
+                     <option value="1">1 Month Pilot</option>
+                     <option value="3">3 Month Quarter</option>
+                     <option value="6">6 Month Semester</option>
+                     <option value="12">1 Year Academy</option>
                    </select>
-                   <button 
-                     className="btn-primary" 
-                     style={{ padding: "8px 15px", fontSize: "0.8rem" }}
-                     onClick={() => renewSubscription(hm.id, renewDuration)}
-                   >RENEW 🔓</button>
-                   
-                   {new Date(hm.subscription_expires_at) > new Date() && (
-                      <button 
-                        className="btn-secondary" 
-                        style={{ padding: "8px 15px", fontSize: "0.8rem", background: "#fee2e2", color: "#ef4444", borderColor: "#fecaca" }}
-                        onClick={() => freezeSubscription(hm.id)}
-                      >FREEZE ❄️</button>
+                </div>
+                <button className="w-full btn-primary !py-5 shadow-2xl" onClick={generateHeadmasterCode}>Forge Join Code 🎫</button>
+             </div>
+
+             <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+                <h4 className="text-xl font-black text-white mb-6">Archive of Tokens</h4>
+                <div className="space-y-4">
+                   {invites.filter(inv => !inv.is_used).map((inv, i) => (
+                     <div key={i} className="flex items-center justify-between p-4 bg-slate-800 rounded-2xl border border-white/5 group">
+                        <div>
+                           <p className="text-xs font-black text-primary font-mono tracking-widest mb-1">{inv.code}</p>
+                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Valid 24h</p>
+                        </div>
+                        <button 
+                          onClick={() => { navigator.clipboard.writeText(inv.code); alert("Code Transferred! 🎫"); }}
+                          className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-slate-400 hover:text-white hover:bg-primary transition-all"
+                        >
+                           📋
+                        </button>
+                     </div>
+                   ))}
+                   {invites.filter(inv => !inv.is_used).length === 0 && (
+                      <p className="text-xs font-bold text-slate-600 italic text-center py-4">No active codes in registry.</p>
                    )}
                 </div>
-              </div>
-            ))}
+             </div>
+
+             <div className="bg-red-500/5 border border-red-500/20 p-8 rounded-[2rem] group hover:bg-red-500/10 transition-all">
+                <h4 className="text-lg font-black text-red-400 mb-2">Nuclear Protocol</h4>
+                <p className="text-xs text-red-400/60 mb-8 font-medium italic">Instantly wipe all data nodes in the network. Irreversible.</p>
+                <button className="w-full py-4 border border-red-500/40 text-red-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-red-500 hover:text-white transition-all" onClick={resetEverything}>
+                   Activate Global Wipe (RESET) 🧨
+                </button>
+             </div>
           </div>
-        )}
-      </div>
-
-      <div className="grid-cols" style={{ marginBottom: "3rem" }}>
-        <div className="premium-card">
-          <h2 style={{ marginBottom: "1.5rem" }}>Add New School Client 🏫</h2>
-          <p style={{ marginBottom: "1rem", opacity: 0.6, lineHeight: "1.6" }}>
-             Select the subscription duration and generate a code for your new client.
-          </p>
-          
-          <div style={{ marginBottom: "1.5rem" }}>
-             <label style={{ fontSize: "0.8rem", fontWeight: "800", display: "block", marginBottom: "8px" }}>Subscription Duration (Months)</label>
-             <select 
-               style={{ width: "100%", padding: "12px", border: "2px solid #eee", borderRadius: "14px", fontSize: "1rem" }}
-               value={duration}
-               onChange={(e) => setDuration(e.target.value)}
-             >
-                <option value="1">1 Month (Trial)</option>
-                <option value="3">3 Months (Standard)</option>
-                <option value="6">6 Months (Premium)</option>
-                <option value="12">1 Year (Annual)</option>
-             </select>
-          </div>
-
-          <button className="btn-primary" style={{ width: "100%", padding: "1.5rem", fontSize: "1.2rem", boxShadow: "0 10px 30px rgba(255,133,179,0.3)" }} onClick={generateHeadmasterCode}>
-            Generate Headmaster Join Code 🎫
-          </button>
-        </div>
-
-        <div className="premium-card">
-          <h3 style={{ marginBottom: "1.5rem" }}>Unused Access Codes 📜</h3>
-          {invites.filter(inv => !inv.is_used).length === 0 ? (
-            <p style={{ opacity: 0.5 }}>All codes used or none created.</p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {invites.filter(inv => !inv.is_used).map((inv, i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.2rem", background: "var(--primary-light)", borderRadius: "16px", border: "2px dashed var(--primary-color)" }}>
-                  <span style={{ fontWeight: "800", color: "var(--primary-color)", fontFamily: "monospace", fontSize: "1.2rem", letterSpacing: "1px" }}>{inv.code}</span>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button 
-                      style={{ padding: "8px 15px", borderRadius: "10px", background: "var(--primary-color)", color: "white", border: "none", fontSize: "0.8rem", cursor: "pointer", fontWeight: "800" }}
-                      onClick={() => {
-                        navigator.clipboard.writeText(inv.code);
-                        alert("Code Copied! 🎫📋");
-                      }}
-                    >COPY</button>
-                    <span style={{ fontSize: "0.7rem", color: "var(--primary-color)", opacity: 0.6, display: "flex", alignItems: "center" }}>Expires in 24h</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
-
-      <div className="premium-card" style={{ border: "2px solid #fee2e2", background: "#fffafb", padding: "2.5rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
-         <div style={{ position: "relative", zIndex: 1 }}>
-            <h2 style={{ color: "#ef4444", marginBottom: "1rem" }}>System Maintenance & Reset 🧨</h2>
-            <p style={{ maxWidth: "600px", margin: "0 auto 2rem auto", color: "#666" }}>
-               This will delete all schools, students, subjects, and lessons. Use this only if you want to start over from scratch. **Your Creator account will be saved.**
-            </p>
-            <button className="btn-secondary" style={{ background: "#ef4444", color: "white", border: "none", padding: "1rem 2.5rem", fontSize: "1.1rem", fontWeight: "800" }} onClick={resetEverything}>
-               Wipe All Data (RESET) 🧨
-            </button>
-         </div>
-         <span style={{ position: "absolute", left: "-20px", top: "-20px", fontSize: "10rem", opacity: 0.05 }}>⚠️</span>
-      </div>
-
-      <button className="btn-secondary" style={{ marginTop: "3rem", width: "100%", padding: "15px" }} onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}>Logout 🚪</button>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { curriculum } from "@/data/curriculum";
 
-export default function W3StyleLessonPage() {
+export default function ScholarLessonPage() {
   const params = useParams();
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -31,31 +31,36 @@ export default function W3StyleLessonPage() {
       }
       setUser(JSON.parse(storedUser));
       
-      const res = await fetch("/api/curriculum");
-      if (!res.ok) return;
-      const currData = await res.json();
-      
-      const baseCurr = { ...curriculum };
-      Object.keys(currData).forEach(g => {
-        if (!baseCurr[g]) baseCurr[g] = [];
-        // Append all subjects without merging by title
-        baseCurr[g] = [...baseCurr[g], ...currData[g]];
-      });
-      setLocalCurriculum(baseCurr);
+      try {
+        const res = await fetch("/api/curriculum");
+        if (res.ok) {
+          const currData = await res.json();
+          const baseCurr = { ...curriculum };
+          Object.keys(currData).forEach(g => {
+            if (!baseCurr[g]) baseCurr[g] = [];
+            baseCurr[g] = [...baseCurr[g], ...currData[g]];
+          });
+          setLocalCurriculum(baseCurr);
+        }
+      } catch (e) {
+        console.error("Failed to sync curriculum", e);
+      }
     };
     fetchData();
   }, [router, grade]);
 
-  if (!user) return <div className="flex-center" style={{ height: "100vh" }}>Loading...</div>;
+  if (!user) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
-  // Find the SPECIFIC subject that contains this lesson ID
   const subjectsInGrade = localCurriculum[grade] || [];
   const subjectData = subjectsInGrade.find(s => s.lessons?.some(l => l.id == lessonId)) || 
-                     subjectsInGrade.find(s => s.title === subjectTitle); // fallback
+                     subjectsInGrade.find(s => s.title === subjectTitle);
   
   const lessonsInSubject = subjectData?.lessons || [];
-
-  const lesson = lessonsInSubject.find(l => l.id == lessonId); // Use == for ID match
+  const lesson = lessonsInSubject.find(l => l.id == lessonId);
   const lessonIdx = lessonsInSubject.findIndex(l => l.id == lessonId);
 
   useEffect(() => {
@@ -69,14 +74,22 @@ export default function W3StyleLessonPage() {
     }
   }, [lesson, grade, subjectTitle, lessonId]);
 
-  if (!lesson) return <div>Lesson not found 😿</div>;
+  if (!lesson) return (
+    <div className="min-h-screen flex items-center justify-center p-6 text-center">
+      <div>
+        <div className="text-6xl mb-4">😿</div>
+        <h2 className="text-2xl font-black text-slate-800">Module Unreachable</h2>
+        <button className="btn-secondary mt-6" onClick={() => router.push(`/lessons/${grade}/${subjectTitle}`)}>Back to Subjects</button>
+      </div>
+    </div>
+  );
 
   const saveProgress = () => {
     const currentProgress = JSON.parse(localStorage.getItem("catProgress") || "{}");
     if (!currentProgress[grade]) currentProgress[grade] = {};
     if (!currentProgress[grade][subjectTitle]) currentProgress[grade][subjectTitle] = [];
-    if (!currentProgress[grade][subjectTitle].includes(lessonId)) {
-      currentProgress[grade][subjectTitle].push(lessonId);
+    if (!currentProgress[grade][subjectTitle].includes(lessonId.toString())) {
+      currentProgress[grade][subjectTitle].push(lessonId.toString());
     }
     localStorage.setItem("catProgress", JSON.stringify(currentProgress));
   };
@@ -86,7 +99,6 @@ export default function W3StyleLessonPage() {
     setSelected(option);
     setIsAnswered(true);
     
-    // Check answer server-side
     try {
       const res = await fetch(`/api/lessons/${lessonId}`, {
         method: "POST",
@@ -110,7 +122,7 @@ export default function W3StyleLessonPage() {
     } else {
       setFinished(true);
       saveProgress();
-      const updatedUser = { ...user, exp: user.exp + score };
+      const updatedUser = { ...user, exp: (user.exp || 0) + score };
       localStorage.setItem("catUser", JSON.stringify(updatedUser));
       setUser(updatedUser);
     }
@@ -119,184 +131,215 @@ export default function W3StyleLessonPage() {
   const goToLesson = (id) => {
     router.push(`/lessons/${grade}/${subjectTitle}/${id}`);
     setSidebarOpen(false);
-    // Reset internal states
     setQIndex(0); setScore(0); setFinished(false); setSelected(null); setIsAnswered(false); setCorrectAnswer(null);
   };
 
+  const getYoutubeVideoId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#fdfdfd" }}>
+    <div className="min-h-screen bg-[#FDFBF6] flex overflow-hidden">
       
-      {/* Sidebar - W3Schools Style */}
-      <aside style={{ 
-        width: "280px", 
-        background: "white", 
-        borderRight: "1px solid #eee", 
-        height: "100vh", 
-        position: "fixed", 
-        overflowY: "auto",
-        zIndex: 1000,
-        transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.3s ease",
-        left: 0,
-        top: 0
-      }} className="desktop-sidebar">
-        <div style={{ padding: "1.5rem 2rem", borderBottom: "1px solid #f0f0f0", fontWeight: "bold", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--primary-light)", color: "var(--primary-color)" }}>
-           <span style={{ fontSize: "0.9rem", letterSpacing: "0.5px" }}>📚 CHAPTERS</span>
-           <button className="mobile-only" onClick={() => setSidebarOpen(false)} style={{ border: "none", background: "none", fontSize: "1.8rem", color: "var(--primary-color)", cursor: "pointer" }}>×</button>
+      {/* Sidebar - Modern Glass */}
+      <aside className={`fixed inset-y-0 left-0 w-80 bg-white/80 backdrop-blur-xl border-r border-slate-100 z-50 transform transition-transform duration-500 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+        <div className="p-8 border-b border-slate-100 bg-gradient-to-tr from-primary-light/10 to-transparent">
+           <h2 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Scholar's Path</h2>
+           <h3 className="text-xl font-black text-slate-800 line-clamp-1">{subjectTitle}</h3>
         </div>
 
-        <nav style={{ padding: "1rem 0" }}>
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)] scrollbar-hide">
           {lessonsInSubject.map((l, idx) => (
-            <div 
+            <button 
               key={l.id} 
               onClick={() => goToLesson(l.id)}
-              style={{ 
-                padding: "12px 2rem", 
-                cursor: "pointer", 
-                background: l.id === lessonId ? "var(--primary-light)" : "transparent",
-                color: l.id === lessonId ? "var(--primary-color)" : "inherit",
-                fontWeight: l.id === lessonId ? "800" : "400",
-                fontSize: "0.95rem",
-                borderLeft: l.id === lessonId ? "5px solid var(--primary-color)" : "5px solid transparent"
-              }}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all text-left ${l.id == lessonId ? 'bg-white shadow-xl shadow-primary-light/10 ring-1 ring-primary-light text-primary' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
             >
-              {idx + 1}. {l.title}
-            </div>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${l.id == lessonId ? 'bg-primary text-white' : 'bg-slate-100'}`}>
+                {idx + 1}
+              </div>
+              <span className={`text-sm font-bold truncate ${l.id == lessonId ? 'opacity-100' : 'opacity-70'}`}>{l.title}</span>
+            </button>
           ))}
         </nav>
       </aside>
 
-
-      {/* Sidebar Overlay for Mobile */}
+      {/* Overlay */}
       {sidebarOpen && (
-        <div 
-          className="mobile-only" 
-          onClick={() => setSidebarOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", zIndex: 999, backdropFilter: "blur(2px)" }}
-        />
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1, paddingBottom: "5rem" }} className="main-content">
+      {/* Main Context */}
+      <main className="flex-1 lg:ml-80 h-screen overflow-y-auto scroll-smooth">
         
-        {/* Top bar for mobile */}
-        <div className="mobile-only-flex" style={{ padding: "0.8rem 1rem", borderBottom: "1px solid #eee", display: "flex", gap: "10px", alignItems: "center", background: "white", position: "sticky", top: 0, zIndex: 50 }}>
-           <button className="btn-secondary" style={{ padding: "8px 15px", fontSize: "0.8rem", border: "1px solid var(--primary-color)", background: "var(--primary-light)", color: "var(--primary-color)" }} onClick={() => setSidebarOpen(true)}>☰ Chapters</button>
-           <span style={{ fontWeight: "800", fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lesson.title}</span>
-        </div>
-
-
-        {/* Lesson Header */}
-        <header style={{ padding: "clamp(2rem, 5vw, 4rem) 2rem", background: "white", borderBottom: "1px solid #f9f9f9" }}>
-           <div className="container" style={{ maxWidth: "800px", margin: "0" }}>
-             <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", marginBottom: "1rem" }}>{lesson.title}</h1>
-             <p style={{ opacity: 0.5 }}>{grade} • Part of {subjectTitle} Course</p>
-           </div>
-        </header>
-
-        {/* Actual Content */}
-        <div className="container" style={{ maxWidth: "800px", margin: "0", padding: "3rem 2rem" }}>
-           
-            {lesson.type === "lecture" ? (
-              <div style={{ fontSize: "1.2rem", lineHeight: "1.8", color: "#333", minHeight: "300px" }}>
-                 {lesson.media_url && (
-                    <div style={{ marginBottom: "2rem", borderRadius: "16px", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}>
-                       {lesson.media_url.includes('youtube.com') || lesson.media_url.includes('youtu.be') ? (
-                          <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-                             <iframe 
-                                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
-                                src={`https://www.youtube.com/embed/${lesson.media_url.split('v=')[1] || lesson.media_url.split('/').pop()}`}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                             ></iframe>
-                          </div>
-                       ) : (
-                          <img src={lesson.media_url} alt={lesson.title} style={{ width: "100%", height: "auto", display: "block" }} />
-                       )}
-                    </div>
-                 )}
-                 <div style={{ whiteSpace: "pre-wrap" }}>{lesson.content}</div>
+        {/* Top Navigation */}
+        <nav className="sticky top-0 z-30 bg-white/60 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl shadow-sm text-slate-500"
+              >
+                ☰
+              </button>
+              <div className="hidden sm:block">
+                 <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{grade} • Curriculum</p>
+                 <p className="text-xs font-bold text-slate-600 line-clamp-1">{lesson.title}</p>
               </div>
+           </div>
+           
+           <div className="flex items-center gap-3">
+              <button className="btn-secondary !py-2 !px-4 !text-[10px]" onClick={() => router.push(`/lessons/${grade}/${subjectTitle}`)}>
+                 Exit Path
+              </button>
+              <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20">
+                 {score || 0}
+              </div>
+           </div>
+        </nav>
+
+        {/* Lesson Progress (Top) */}
+        {!finished && lesson.type === 'quiz' && (
+           <div className="h-1 w-full bg-slate-100">
+              <div 
+                className="h-full bg-primary transition-all duration-500" 
+                style={{ width: `${((qIndex + 1) / (lesson.questions?.length || 1)) * 100}%` }}
+              />
+           </div>
+        )}
+
+        <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+           
+           {lesson.type === "lecture" ? (
+             <div className="animate-fade-in">
+                <header className="mb-12">
+                   <h1 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight mb-6">{lesson.title}</h1>
+                   <div className="flex items-center gap-4">
+                      <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest">Theoretical Module</span>
+                      <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Estimated 15 mins</span>
+                   </div>
+                </header>
+
+                <div className="space-y-10">
+                   {lesson.media_url && (
+                      <div className="rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50 bg-slate-100 ring-1 ring-slate-100">
+                         {getYoutubeVideoId(lesson.media_url) ? (
+                            <div className="aspect-video">
+                               <iframe 
+                                  className="w-full h-full"
+                                  src={`https://www.youtube.com/embed/${getYoutubeVideoId(lesson.media_url)}`}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                               ></iframe>
+                            </div>
+                         ) : (
+                            <img src={lesson.media_url} alt={lesson.title} className="w-full h-auto" />
+                         )}
+                      </div>
+                   )}
+
+                   <div className="glass-panel !p-8 md:!p-12 border-none shadow-xl shadow-slate-100/50">
+                      <div className="prose prose-slate max-w-none text-slate-700 text-lg leading-relaxed whitespace-pre-wrap font-medium">
+                        {lesson.content}
+                      </div>
+                   </div>
+                </div>
+             </div>
            ) : (
-             <div className="quiz-container">
+             <section className="animate-fade-in">
                 {finished ? (
-                  <div className="premium-card" style={{ textAlign: "center", padding: "3rem" }}>
-                     <h2>Quiz Finished! 🎉</h2>
-                     <p>{alreadyDone ? "You have already completed this exam! ✅" : `You earned ${score} EXP points.`}</p>
-                     <button className="btn-primary" onClick={() => {
-                        if (lessonIdx < lessonsInSubject.length - 1) goToLesson(lessonsInSubject[lessonIdx+1].id);
-                        else router.push(`/dashboard`);
-                     }}>
-                        {lessonIdx < lessonsInSubject.length - 1 ? "Next Chapter 🐾" : "Return Home"}
-                     </button>
+                  <div className="text-center py-20">
+                     <div className="inline-flex items-center justify-center w-24 h-24 bg-green-50 text-green-500 rounded-full text-5xl mb-8 animate-bounce transition-transform duration-1000">🎉</div>
+                     <h2 className="text-4xl font-black text-slate-800 tracking-tight mb-4">Module Mastered!</h2>
+                     <p className="text-slate-500 font-medium mb-12 max-w-md mx-auto">
+                        {alreadyDone ? "You've successfully reviewed this examination. Excellent persistence!" : `Magnificent! You scored ${score} EXP for your profile.`}
+                     </p>
+                     
+                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button className="btn-primary !py-4 !px-10" onClick={() => {
+                           if (lessonIdx < lessonsInSubject.length - 1) goToLesson(lessonsInSubject[lessonIdx+1].id);
+                           else router.push(`/dashboard`);
+                        }}>
+                           {lessonIdx < lessonsInSubject.length - 1 ? "Advance to Next Chapter 🐾" : "Return to Dashboard"}
+                        </button>
+                        <button className="text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-primary transition-colors" onClick={() => setFinished(false)}>Review Questions</button>
+                     </div>
                   </div>
                 ) : (
-                  <div>
-                    <h3 style={{ marginBottom: "2rem" }}>{lesson.questions[qIndex].q}</h3>
-                    <div style={{ display: "grid", gap: "1rem" }}>
-                      {lesson.questions[qIndex].options.map((opt, i) => (
-                        <button 
-                          key={i} 
-                          className={`premium-card ${selected === opt ? (opt === correctAnswer ? "correct" : "wrong") : (isAnswered && opt === correctAnswer ? "correct" : "")}`}
-                          onClick={() => handleAnswer(opt)}
-                          disabled={isAnswered}
-                          style={{ padding: "1.5rem", textAlign: "left" }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
+                  <div className="max-w-2xl mx-auto">
+                    <header className="mb-12 text-center">
+                       <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Question {qIndex + 1} of {lesson.questions.length}</p>
+                       <h3 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-snug">{lesson.questions[qIndex].q}</h3>
+                    </header>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      {lesson.questions[qIndex].options.map((opt, i) => {
+                        const isCorrect = opt === correctAnswer;
+                        const isSelected = selected === opt;
+                        const stateClass = isAnswered 
+                           ? (isCorrect ? 'ring-2 ring-green-500 bg-green-50 text-green-700' : (isSelected ? 'ring-2 ring-red-500 bg-red-50 text-red-700' : 'opacity-40'))
+                           : 'hover:ring-2 hover:ring-primary-light hover:bg-white hover:-translate-y-0.5';
+
+                        return (
+                          <button 
+                            key={i} 
+                            className={`premium-card group !p-6 flex items-center justify-between text-left transition-all duration-300 border-none shadow-md ${stateClass}`}
+                            onClick={() => handleAnswer(opt)}
+                            disabled={isAnswered}
+                          >
+                            <span className="font-bold">{opt}</span>
+                            {isAnswered && isCorrect && <span className="text-xl">✅</span>}
+                            {isAnswered && isSelected && !isCorrect && <span className="text-xl">❌</span>}
+                          </button>
+                        );
+                      })}
                     </div>
+
                     {isAnswered && (
-                      <button className="btn-primary" style={{ marginTop: "2rem", width: "100%" }} onClick={handleNextInQuiz}>
-                        {qIndex < lesson.questions.length - 1 ? "Next Question" : "Finish Quiz"}
-                      </button>
+                      <div className="mt-12 animate-slide-up">
+                         <button className="btn-primary w-full !py-5 shadow-2xl shadow-primary/20 flex items-center justify-center gap-3" onClick={handleNextInQuiz}>
+                           {qIndex < lesson.questions.length - 1 ? "Advance Strategy ➔" : "Finalize Results 🏆"}
+                         </button>
+                      </div>
                     )}
                   </div>
                 )}
-             </div>
+             </section>
            )}
 
-           {/* W3Schools Style Next/Prev Buttons */}
-           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5rem", borderTop: "1px solid #eee", paddingTop: "2rem" }}>
+           {/* Navigation Footer */}
+           <footer className="mt-24 pt-12 border-t border-slate-100 flex items-center justify-between gap-4">
               <button 
-                className="btn-secondary" 
+                className="group flex items-center gap-3 text-slate-400 hover:text-primary transition-colors"
                 disabled={lessonIdx === 0}
                 onClick={() => goToLesson(lessonsInSubject[lessonIdx-1].id)}
               >
-                ❮ Previous
+                <div className={`w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all ${lessonIdx === 0 ? 'opacity-20' : ''}`}>❮</div>
+                <div className="hidden sm:block text-left">
+                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Previous Module</p>
+                   <p className="text-xs font-bold truncate max-w-[120px]">{(lessonsInSubject[lessonIdx-1] || {}).title || 'Start'}</p>
+                </div>
               </button>
+
               <button 
-                className="btn-primary" 
-                style={{ padding: "10px 40px" }}
+                className="group flex items-center gap-3 text-right"
                 onClick={() => {
                   if (lesson.type === "lecture") saveProgress();
                   if (lessonIdx < lessonsInSubject.length - 1) goToLesson(lessonsInSubject[lessonIdx+1].id);
                   else router.push(`/lessons/${grade}/${subjectTitle}`);
                 }}
               >
-                {lessonIdx < lessonsInSubject.length - 1 ? "Next ❯" : "Subject Home"}
+                <div className="hidden sm:block">
+                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Next Step</p>
+                   <p className="text-xs font-bold truncate max-w-[120px]">{lessonIdx < lessonsInSubject.length - 1 ? lessonsInSubject[lessonIdx+1].title : 'Complete'}</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center group-hover:bg-primary transition-all">❯</div>
               </button>
-           </div>
-        </div>
+           </footer>
+        </article>
       </main>
-
-      <style jsx>{`
-        @media (min-width: 769px) {
-          .desktop-sidebar { transform: translateX(0) !important; }
-          .mobile-only, .mobile-only-flex { display: none !important; }
-          .main-content { margin-left: 280px !important; }
-        }
-        @media (max-width: 768px) {
-          .mobile-only { display: block !important; }
-          .mobile-only-flex { display: flex !important; }
-          .main-content { margin-left: 0 !important; }
-          header { padding: 2rem 1rem !important; }
-          .container { padding: 1.5rem 1rem !important; }
-        }
-
-        .correct { border: 2px solid var(--accent-green) !important; background: #e6ffec !important; font-weight: 800; }
-        .wrong { border: 2px solid #ff5e5e !important; background: #ffe6e6 !important; font-weight: 800; }
-      `}</style>
     </div>
   );
 }

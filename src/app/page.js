@@ -45,109 +45,124 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", overflowX: "hidden" }}>
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 relative font-sans">
+        {/* Animated Background Blobs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
+        <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-secondary/10 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-accent/15 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+
       {/* Navigation */}
-      <nav style={{ 
-        padding: "clamp(1rem, 3vw, 1.5rem) clamp(1rem, 5vw, 4rem)", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        position: "fixed", 
-        width: "100%", 
-        top: 0, 
-        zIndex: 100, 
-        background: "rgba(255, 255, 255, 0.7)", 
-        backdropFilter: "blur(20px) saturate(180%)", 
-        borderBottom: "1px solid rgba(0,0,0,0.03)" 
-      }}>
-        <div style={{ fontSize: "clamp(1.2rem, 4vw, 1.8rem)", fontWeight: "800", display: "flex", alignItems: "center", gap: "10px", color: "#1a1a1a" }}>
-          <img src="/cat-hat-logo.png" alt="Cat Academy" style={{ width: "32px", height: "32px", borderRadius: "8px" }} /> Cat Academy
+      <nav className="fixed w-full top-0 px-6 md:px-12 py-4 flex justify-between items-center z-50 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm transition-all">
+        <div className="text-xl md:text-2xl font-black flex items-center gap-3 text-slate-800">
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+             <img src="/cat-hat-logo.png" alt="Cat Academy" className="w-full h-full object-cover" />
+          </div>
+          Cat Academy
         </div>
-        <div className="nav-buttons" style={{ display: "flex", gap: "clamp(0.5rem, 2vw, 1.5rem)", alignItems: "center" }}>
-          <button className="btn-secondary" style={{ padding: "10px 20px", fontSize: "0.95rem" }} onClick={() => router.push("/login")}>Login</button>
-          <button className="btn-primary" style={{ padding: "10px 24px", fontSize: "0.95rem" }} onClick={() => router.push("/login")}>Join Now 🎓</button>
+        <div className="flex gap-2 md:gap-4 items-center">
+          <button className="hidden md:block px-6 py-2.5 rounded-full font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors" onClick={() => router.push("/login")}>Login</button>
+          <button className="btn-primary !px-6 !py-2.5 !text-sm md:!text-base flex items-center gap-2" onClick={() => router.push("/login")}>
+            Join Now <span className="text-lg">🎓</span>
+          </button>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <header className="container" style={{ 
-        paddingTop: "clamp(8rem, 20vh, 12rem)", 
-        paddingBottom: "6rem", 
-        display: "flex", 
-        flexDirection: "column",
-        gap: "2.5rem", 
-        alignItems: "center", 
-        minHeight: "80vh",
-        textAlign: "center",
-        maxWidth: "900px"
-      }}>
-        <div>
-          <span style={{ background: "var(--primary-light)", color: "var(--primary-color)", padding: "12px 28px", borderRadius: "50px", fontSize: "1rem", fontWeight: "800", marginBottom: "2rem", display: "inline-block", boxShadow: "0 10px 20px rgba(255,133,179,0.1)" }}>✨ Welcome to the Future of Learning</span>
-          <h1 style={{ fontSize: "clamp(2.8rem, 8vw, 5rem)", lineHeight: "1.05", marginBottom: "2rem", fontWeight: "800" }}>Learning is Better with a <span style={{ color: "var(--primary-color)" }}>Furry Friend!</span> 🌸</h1>
-          <p style={{ fontSize: "clamp(1.1rem, 3vw, 1.5rem)", color: "var(--text-muted)", marginBottom: "3.5rem", lineHeight: "1.7", maxWidth: "700px", margin: "0 auto 3.5rem" }}>
+      <header className="relative z-10 container mx-auto px-6 pt-32 md:pt-48 pb-24 flex flex-col items-center min-h-[85vh] text-center max-w-5xl">
+        <div className="animate-fade-in flex flex-col items-center w-full">
+          <div className="inline-flex items-center gap-2 bg-primary-light/80 text-primary-dark px-6 py-3 rounded-full font-extrabold text-sm md:text-base mb-8 shadow-sm border border-primary/20 backdrop-blur-sm animate-float">
+             ✨ Welcome to the Future of Learning
+          </div>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] mb-8 text-slate-800">
+             Learning is Better with a <br className="hidden md:block" />
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary">
+               Furry Friend! 🌸
+             </span>
+          </h1>
+          <p className="text-lg md:text-2xl text-slate-500 font-medium mb-12 max-w-3xl leading-relaxed">
             The most adorable way to master Math, Science, and English. Join thousands of kittens worldwide on a quest for knowledge and leveling up.
           </p>
-          <div className="hero-buttons" style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center" }}>
-             <button className="btn-primary" style={{ padding: "1.4rem 4rem", fontSize: "1.2rem" }} onClick={() => router.push("/login")}>Get Started Today 🐾</button>
-             <button className="btn-secondary" style={{ padding: "1.4rem 3rem", fontSize: "1.2rem", background: "white", border: "2px solid #eee" }} onClick={handleDownload}>Download App 📱</button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+             <button className="btn-primary !py-5 !px-10 text-lg flex items-center justify-center gap-3 w-full sm:w-auto" onClick={() => router.push("/login")}>
+                Get Started Today <span className="text-2xl">🐾</span>
+             </button>
+             <button className="btn-secondary !py-5 !px-10 text-lg flex items-center justify-center gap-3 w-full sm:w-auto" onClick={handleDownload}>
+                Download App <span className="text-2xl">📱</span>
+             </button>
           </div>
         </div>
+        
+        {/* Floating Hero Icons */}
+        <div className="absolute top-[20%] left-[10%] text-6xl opacity-20 animate-float-slow pointer-events-none hidden lg:block">📚</div>
+        <div className="absolute top-[30%] right-[10%] text-6xl opacity-20 animate-float pointer-events-none hidden lg:block">🎮</div>
+        <div className="absolute bottom-[20%] left-[15%] text-6xl opacity-20 animate-float-slower pointer-events-none hidden lg:block">🌟</div>
       </header>
 
       {/* Features Section */}
-      <section style={{ padding: "clamp(4rem, 10vh, 8rem) 0", position: "relative", zIndex: 10 }}>
-        <div className="container">
-          <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-             <h2 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", marginBottom: "1rem" }}>Why Choose Cat Academy? 🌟</h2>
-             <p style={{ fontSize: "1.1rem", opacity: 0.6 }}>Built for curious kittens who love to explore and learn together.</p>
+      <section className="relative z-10 py-24 px-6 bg-white/40 backdrop-blur-lg border-y border-slate-200/50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+             <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-800">Why Choose Cat Academy? <span className="inline-block animate-pulse-soft">🌟</span></h2>
+             <p className="text-xl text-slate-500 font-medium">Built for curious kittens who love to explore and learn together.</p>
           </div>
 
-          <div className="grid-cols">
-            <div className="premium-card" style={{ textAlign: "center" }}>
-               <div style={{ fontSize: "4rem", marginBottom: "1.5rem" }}>🎮</div>
-               <h3 style={{ marginBottom: "1rem" }}>Gamified Learning</h3>
-               <p style={{ opacity: 0.6 }}>Every quiz is an adventure! Earn EXP, collect badges, and level up as you master your subjects.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300">
+               <div className="text-6xl mb-6 inline-block bg-primary-light/50 p-6 rounded-[2rem] shadow-inner">🎮</div>
+               <h3 className="text-2xl font-black mb-4 text-slate-800">Gamified Learning</h3>
+               <p className="text-slate-500 font-medium leading-relaxed">Every quiz is an adventure! Earn EXP, collect badges, and level up as you master your subjects.</p>
             </div>
-            <div className="premium-card" style={{ textAlign: "center" }}>
-               <div style={{ fontSize: "4rem", marginBottom: "1.5rem" }}>📚</div>
-               <h3 style={{ marginBottom: "1rem" }}>Full Curriculum</h3>
-               <p style={{ opacity: 0.6 }}>From K to Grade 6, covering Math, Science, English, Filipino, and more with feline flair.</p>
+            <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-100">
+               <div className="text-6xl mb-6 inline-block bg-secondary/10 p-6 rounded-[2rem] shadow-inner">📚</div>
+               <h3 className="text-2xl font-black mb-4 text-slate-800">Full Curriculum</h3>
+               <p className="text-slate-500 font-medium leading-relaxed">From K to Grade 6, covering Math, Science, English, Filipino, and more with feline flair.</p>
             </div>
-            <div className="premium-card" style={{ textAlign: "center" }}>
-               <div style={{ fontSize: "4rem", marginBottom: "1.5rem" }}>📊</div>
-               <h3 style={{ marginBottom: "1rem" }}>Admin Tools</h3>
-               <p style={{ opacity: 0.6 }}>Teachers can create custom tests and track every student's progress with real-time analytics.</p>
+            <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-200">
+               <div className="text-6xl mb-6 inline-block bg-accent/10 p-6 rounded-[2rem] shadow-inner">📊</div>
+               <h3 className="text-2xl font-black mb-4 text-slate-800">Admin Tools</h3>
+               <p className="text-slate-500 font-medium leading-relaxed">Teachers can create custom tests and track every student's progress with real-time analytics.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="container" style={{ padding: "clamp(4rem, 10vh, 8rem) 0", display: "flex", gap: "2rem", justifyContent: "space-around", flexWrap: "wrap" }}>
-         <div style={{ textAlign: "center", flex: "1 1 200px" }}>
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "var(--primary-color)" }}>{studentCount}</h2>
-            <p style={{ fontWeight: "bold" }}>Kitten Students 😸</p>
-         </div>
-         <div style={{ textAlign: "center", flex: "1 1 200px" }}>
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "var(--accent-blue)" }}>{totalSubjects}+</h2>
-            <p style={{ fontWeight: "bold" }}>Fun Subjects 📚</p>
-         </div>
-         <div style={{ textAlign: "center", flex: "1 1 200px" }}>
-            <h2 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "var(--secondary-color)" }}>{successRate}%</h2>
-            <p style={{ fontWeight: "bold" }}>Success Rate 🎓</p>
+      <section className="relative z-10 container mx-auto py-24 px-6 max-w-5xl">
+         <div className="glass-card flex flex-col md:flex-row justify-between gap-12 text-center py-12 px-8">
+             <div className="flex-1">
+                <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{studentCount}</h2>
+                <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Kitten Students <span className="ml-1">😸</span></p>
+             </div>
+             <div className="hidden md:block w-px bg-slate-200"></div>
+             <div className="flex-1">
+                <h2 className="text-6xl font-black text-accent-blue mb-2 drop-shadow-sm">{totalSubjects}+</h2>
+                <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Fun Subjects <span className="ml-1">📚</span></p>
+             </div>
+             <div className="hidden md:block w-px bg-slate-200"></div>
+             <div className="flex-1">
+                <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{successRate}%</h2>
+                <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Success Rate <span className="ml-1">🎓</span></p>
+             </div>
          </div>
       </section>
 
       {/* CTA Footer */}
-      <footer style={{ background: "linear-gradient(135deg, var(--secondary-color), var(--primary-color))", padding: "10rem 0", color: "white", textAlign: "center", position: "relative", overflow: "hidden" }}>
-         <div className="container" style={{ position: "relative", zIndex: 1 }}>
-            <h2 style={{ color: "white", fontSize: "clamp(2rem, 5vw, 3.5rem)", marginBottom: "2rem", lineHeight: "1.2" }}>Ready to Unleash Your Inner Genius? 🧠</h2>
-            <p style={{ fontSize: "1.5rem", marginBottom: "3rem", opacity: 0.9 }}>Join the kitten community today!</p>
-            <button className="btn-primary" style={{ background: "white", color: "var(--primary-color)", padding: "1.2rem 3rem", fontSize: "1.2rem", width: "auto" }} onClick={() => router.push("/login")}>
-               Get Started Now 🐾
+      <footer className="relative overflow-hidden bg-gradient-to-br from-secondary to-primary py-32 px-6 text-center text-white">
+         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-20 border-t border-white/10"></div>
+         {/* Huge subtle cat background */}
+         <div className="absolute -left-20 -bottom-20 text-[30rem] opacity-5 pointer-events-none select-none rotate-[-15deg]">🐱</div>
+         
+         <div className="relative z-10 container mx-auto max-w-4xl">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight drop-shadow-lg">
+                Ready to Unleash Your Inner Genius? 🧠
+            </h2>
+            <p className="text-xl md:text-2xl mb-12 font-medium opacity-90 drop-shadow-md">
+                Join our premium kitten community today!
+            </p>
+            <button className="bg-white text-primary hover:bg-primary-light px-12 py-5 rounded-full text-xl font-extrabold shadow-2xl hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3 mx-auto" onClick={() => router.push("/login")}>
+               Get Started Now <span className="text-2xl">🐾</span>
             </button>
          </div>
-         <span style={{ position: "absolute", left: "-50px", top: "-50px", fontSize: "20rem", opacity: 0.1 }}>🐱</span>
       </footer>
     </div>
   );
