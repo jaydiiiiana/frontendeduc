@@ -228,16 +228,16 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 relative z-10 pt-8 border-t border-white/20">
-             <div className="flex-1 min-w-[280px] glass-panel !bg-white/20 backdrop-blur-xl border-white/30 flex items-center p-1.5 rounded-full shadow-inner ring-1 ring-white/10 group focus-within:ring-white/40 transition-all">
+             <div className="flex-1 w-full md:w-auto glass-panel !bg-white/20 backdrop-blur-xl border-white/30 flex items-center p-1.5 rounded-full shadow-inner ring-1 ring-white/10 group focus-within:ring-white/40 transition-all">
                 <input 
                   type="text" 
                   placeholder="Have an invite code? ✨" 
-                  className="flex-1 bg-transparent border-none text-white placeholder:text-white/60 px-6 font-bold outline-none uppercase tracking-widest text-sm" 
+                  className="flex-1 w-0 bg-transparent border-none text-white placeholder:text-white/60 px-4 md:px-6 font-bold outline-none uppercase tracking-widest text-xs md:text-sm" 
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 />
                 <button 
-                  className="bg-white text-primary px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-lg active:scale-95"
+                  className="bg-white text-primary px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-xs md:text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-lg active:scale-95 shrink-0"
                   onClick={handleJoinSubject}
                 >
                   Join 🏫
@@ -261,15 +261,15 @@ export default function Dashboard() {
 
         {/* Featured Announcement */}
         {announcements.length > 0 && (
-          <div className="glass-card mb-10 !p-6 border-l-[6px] border-l-yellow-400 flex items-center gap-6 animate-fade-in group hover:bg-white/60">
-            <div className="w-16 h-16 bg-yellow-400/10 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📜</div>
-            <div className="flex-1 overflow-hidden">
-               <span className="text-[10px] font-black uppercase text-yellow-600 tracking-widest mb-1 block">Headmaster's Bulletin</span>
-               <div className="relative overflow-hidden h-7">
-                  <p className="font-bold text-slate-700 truncate line-clamp-1">{announcements[0].content}</p>
+          <div className="glass-card mb-10 !p-6 border-l-[6px] border-l-yellow-400 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 animate-fade-in group hover:bg-white/60 items-start">
+            <div className="hidden md:flex w-16 h-16 bg-yellow-400/10 rounded-2xl items-center justify-center text-3xl group-hover:scale-110 transition-transform">📜</div>
+            <div className="flex-1 w-full overflow-hidden">
+               <span className="text-[10px] font-black uppercase text-yellow-600 tracking-widest mb-1 block flex items-center gap-2"><span className="md:hidden">📜</span> Headmaster's Bulletin</span>
+               <div className="relative overflow-hidden">
+                  <p className="font-bold text-slate-700 md:truncate md:line-clamp-1">{announcements[0].content}</p>
                </div>
             </div>
-            <button className="btn-secondary !py-2.5 !px-6 !text-xs !bg-white hover:!bg-yellow-50 !border-yellow-200 !text-yellow-600" onClick={() => alert(announcements[0].content)}>
+            <button className="w-full md:w-auto btn-secondary !py-2.5 !px-6 !text-xs !bg-white hover:!bg-yellow-50 !border-yellow-200 !text-yellow-600" onClick={() => alert(announcements[0].content)}>
               Full Message 🔍
             </button>
           </div>

@@ -202,7 +202,7 @@ export default function CreatorPanel() {
                              </div>
                           </div>
                           
-                          <div className="flex items-center gap-10">
+                          <div className="flex items-center justify-between w-full md:w-auto gap-6 sm:gap-10">
                              <div className="text-center">
                                 <p className="text-2xl font-black text-white leading-none mb-2">{hm.teacherCount}</p>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Faculty</p>
@@ -220,7 +220,7 @@ export default function CreatorPanel() {
                              <p className="text-sm font-bold text-white">{hm.subscription_expires_at ? new Date(hm.subscription_expires_at).toLocaleDateString() : 'Perpetual Access'}</p>
                           </div>
                           
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                              <select 
                                className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-xs font-black text-white focus:ring-2 ring-primary/40 outline-none transition-all"
                                value={renewDuration}

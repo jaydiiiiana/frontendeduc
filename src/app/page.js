@@ -222,9 +222,9 @@ export default function LandingPage() {
                </div>
             </div>
 
-            <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-center">
                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">© 2026 Cat Academy Project. All Rights Reserved.</p>
-               <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+               <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
                   <span className="hover:text-slate-800 cursor-pointer">Privacy Policy</span>
                   <span className="hover:text-slate-800 cursor-pointer">Terms of Service</span>
                   <span className="hover:text-slate-800 cursor-pointer">Cookie Settings</span>

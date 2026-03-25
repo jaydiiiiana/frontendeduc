@@ -395,7 +395,7 @@ export default function AdminDashboard() {
            </div>
 
            <nav className="flex items-center flex-wrap gap-2">
-              <div className="flex p-1 bg-slate-100/50 rounded-2xl backdrop-blur-sm border border-slate-200/50">
+              <div className="flex p-1 bg-slate-100/50 rounded-2xl backdrop-blur-sm border border-slate-200/50 overflow-x-auto no-scrollbar w-full md:w-auto">
                 {currentUser?.role === 'Headmaster' && (
                   <>
                     <button 

@@ -244,9 +244,9 @@ export default function Home() {
             </div>
 
             {/* Simple Help Footer */}
-            <footer className="w-full max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 mt-20 opacity-60">
+            <footer className="w-full max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 mt-20 opacity-60 text-center">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">© 2026 Cat Academy Project</p>
-                <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
                     <a href="mailto:risingtechinnovations@gmail.com" className="hover:text-primary transition-colors">Support: risingtechinnovations@gmail.com</a>
                     <span className="cursor-pointer hover:text-slate-800">Privacy</span>
                     <span className="cursor-pointer hover:text-slate-800">Terms</span>
