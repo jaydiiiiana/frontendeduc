@@ -69,7 +69,7 @@ export default function AdminDashboard() {
          setCurrentUser(activeUser);
 
          if (activeUser.role === 'Student') {
-           router.push("/");
+           router.push("/dashboard");
            return;
          }
          

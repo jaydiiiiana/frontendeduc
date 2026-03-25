@@ -10,6 +10,16 @@ export default function LandingPage() {
   const deferredPrompt = useRef(null);
 
   useEffect(() => {
+    // Check if user already logged in
+    const stored = localStorage.getItem("catUser");
+    if (stored) {
+      const user = JSON.parse(stored);
+      if (user.role === 'Creator') router.push("/creator");
+      else if (user.role === 'Headmaster' || user.role === 'Teacher') router.push("/admin");
+      else router.push("/dashboard");
+      return;
+    }
+
     const fetchStats = async () => {
        try {
          const res = await fetch("/api/public/stats");
@@ -146,23 +156,87 @@ export default function LandingPage() {
          </div>
       </section>
 
-      {/* CTA Footer */}
-      <footer className="relative overflow-hidden bg-gradient-to-br from-secondary to-primary py-32 px-6 text-center text-white">
-         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-20 border-t border-white/10"></div>
-         {/* Huge subtle cat background */}
-         <div className="absolute -left-20 -bottom-20 text-[30rem] opacity-5 pointer-events-none select-none rotate-[-15deg]">🐱</div>
+      {/* Comprehensive Educational Footer */}
+      <footer className="relative bg-white pt-24 pb-12 border-t border-slate-100 overflow-hidden">
+         {/* Subtle pattern background */}
+         <div className="absolute inset-x-0 bottom-0 h-96 bg-[radial-gradient(circle_at_bottom,rgba(255,107,158,0.05)_0%,transparent_70%)] pointer-events-none"></div>
          
-         <div className="relative z-10 container mx-auto max-w-4xl">
-            <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight drop-shadow-lg">
-                Ready to Unleash Your Inner Genius? 🧠
-            </h2>
-            <p className="text-xl md:text-2xl mb-12 font-medium opacity-90 drop-shadow-md">
-                Join our premium kitten community today!
-            </p>
-            <button className="bg-white text-primary hover:bg-primary-light px-12 py-5 rounded-full text-xl font-extrabold shadow-2xl hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.5)] transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3 mx-auto" onClick={() => router.push("/login")}>
-               Get Started Now <span className="text-2xl">🐾</span>
-            </button>
+         <div className="container mx-auto px-6 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+               {/* Brand Section */}
+               <div className="space-y-6">
+                  <div className="flex items-center gap-3 text-2xl font-black text-slate-800">
+                     <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-white">
+                        <img src="/cat-hat-logo.png" alt="Cat Academy Logo" className="w-full h-full object-cover" />
+                     </div>
+                     Cat Academy
+                  </div>
+                  <p className="text-slate-500 font-medium leading-relaxed">
+                     Empowering the next generation of scholars through adorable adventures. Our mission is to make learning the most delightful part of every kitten's day.
+                  </p>
+                  <div className="flex gap-4">
+                     {['facebook', 'twitter', 'instagram', 'youtube'].map(s => (
+                        <div key={s} className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary-light hover:text-white transition-all cursor-pointer">
+                           <span className="text-lg opacity-60">●</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+
+               {/* Quick Navigation */}
+               <div>
+                  <h4 className="text-xs font-black uppercase tracking-[2px] text-slate-400 mb-8 mt-2">Navigation</h4>
+                  <ul className="space-y-4">
+                     {['Dashboard', 'About Us', 'Curriculum', 'Pricing', 'Success Stories'].map(link => (
+                        <li key={link}>
+                           <span className="text-slate-600 font-bold hover:text-primary transition-colors cursor-pointer">{link}</span>
+                        </li>
+                     ))}
+                  </ul>
+               </div>
+
+               {/* Contact Hub */}
+               <div>
+                  <h4 className="text-xs font-black uppercase tracking-[2px] text-slate-400 mb-8 mt-2">Get in Touch</h4>
+                  <ul className="space-y-6">
+                     <li className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0">📍</div>
+                        <p className="text-slate-600 font-bold leading-tight">123 Kitten Lane, Scholar City, PH 4001</p>
+                     </li>
+                     <li className="flex items-center gap-4 group">
+                        <div className="w-10 h-10 rounded-xl bg-accent-blue/5 flex items-center justify-center text-xl shrink-0 group-hover:bg-accent-blue group-hover:text-white transition-colors">📞</div>
+                        <a href="tel:+639000000000" className="text-slate-600 font-bold group-hover:text-accent-blue transition-colors">+63 (900) 000-0000</a>
+                     </li>
+                     <li className="flex items-center gap-4 group">
+                        <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-xl shrink-0 group-hover:bg-green-500 group-hover:text-white transition-colors">✉️</div>
+                        <a href="mailto:hello@educ.ph" className="text-slate-600 font-bold group-hover:text-green-500 transition-colors">support@educ.ph</a>
+                     </li>
+                  </ul>
+               </div>
+
+               {/* Subscription/App info */}
+               <div className="glass-panel !p-8 !bg-slate-50 !border-slate-100 rounded-[2.5rem]">
+                  <p className="text-[10px] font-black uppercase tracking-[2px] text-primary mb-2">Study Anywhere</p>
+                  <h4 className="text-xl font-black text-slate-800 mb-4">Install the Academy App</h4>
+                  <p className="text-sm text-slate-500 font-medium mb-6">Take your lessons offline and never miss a badge! 🐾</p>
+                  <button className="w-full btn-primary !py-3 !text-xs !shadow-lg shadow-primary/20" onClick={() => alert("Check your browser address bar for the Install ⊕ icon!")}>
+                     Install Now 📱
+                  </button>
+               </div>
+            </div>
+
+            <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">© 2026 Cat Academy Project. All Rights Reserved.</p>
+               <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span className="hover:text-slate-800 cursor-pointer">Privacy Policy</span>
+                  <span className="hover:text-slate-800 cursor-pointer">Terms of Service</span>
+                  <span className="hover:text-slate-800 cursor-pointer">Cookie Settings</span>
+               </div>
+            </div>
          </div>
+         
+         {/* Little cat sneaking from corner */}
+         <div className="absolute right-[-10px] bottom-[-10px] text-8xl opacity-10 rotate-[-15deg] pointer-events-none select-none grayscale">🐱</div>
       </footer>
     </div>
   );

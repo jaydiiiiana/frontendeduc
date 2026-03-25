@@ -10,6 +10,15 @@ export default function Home() {
     const [loginForm, setLoginForm] = useState({ name: "", password: "" });
     const [step, setStep] = useState(1);
     const [error, setError] = useState("");
+    useEffect(() => {
+        const stored = localStorage.getItem("catUser");
+        if (stored) {
+            const user = JSON.parse(stored);
+            if (user.role === 'Creator') router.push("/creator");
+            else if (user.role === 'Headmaster' || user.role === 'Teacher') router.push("/admin");
+            else router.push("/dashboard");
+        }
+    }, [router]);
 
     const handleAgeChange = (e) => {
         const age = parseInt(e.target.value) || "";
@@ -231,6 +240,16 @@ export default function Home() {
                     )}
                 </div>
             </div>
+
+            {/* Simple Help Footer */}
+            <footer className="w-full max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 mt-20 opacity-60">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">© 2026 Cat Academy Project</p>
+                <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <a href="mailto:support@educ.ph" className="hover:text-primary transition-colors">Support: hello@educ.ph</a>
+                    <span className="cursor-pointer hover:text-slate-800">Privacy</span>
+                    <span className="cursor-pointer hover:text-slate-800">Terms</span>
+                </div>
+            </footer>
         </div>
     );
 }

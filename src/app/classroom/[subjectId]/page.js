@@ -144,17 +144,17 @@ export default function ScholarClassroomPage() {
       </header>
 
       {/* Floating Tab Navigation */}
-      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm animate-fade-in">
-        <div className="container mx-auto max-w-6xl px-6 flex items-center gap-10">
-           {["stream", "lessons", ...(isTeacher ? ["students"] : [])].map(tab => (
+      <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm animate-fade-in">
+        <div className="container mx-auto max-w-6xl px-6 flex items-center justify-center gap-2 md:gap-10">
+           {["stream", "classwork", "people"].map(tab => (
              <button
                key={tab}
                onClick={() => setActiveTab(tab)}
-               className={`py-6 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
+               className={`px-6 py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
              >
                {tab}
                {activeTab === tab && (
-                 <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(255,107,158,0.3)]"></div>
+                 <div className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full"></div>
                )}
              </button>
            ))}
@@ -165,160 +165,211 @@ export default function ScholarClassroomPage() {
       <main className="container mx-auto max-w-6xl px-6 py-12 animate-slide-up">
 
         {activeTab === "stream" && (
-          <div className="space-y-8">
-            {isTeacher && (
-              <div className="mb-12">
-                {!showTaskForm ? (
-                   <button 
-                     onClick={() => setShowTaskForm(true)}
-                     className="w-full premium-card !p-8 flex items-center gap-6 group hover:shadow-2xl hover:-translate-y-1 transition-all border-none bg-white text-left"
-                   >
-                      <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:bg-primary group-hover:text-white transition-colors">✏️</div>
-                      <div className="flex-1">
-                        <p className="text-lg font-black text-slate-700 tracking-tight">Create a New Module</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Broadcast a lesson or examination to your class</p>
-                      </div>
-                      <span className="text-slate-300 opacity-40 group-hover:opacity-100 group-hover:translate-x-2 transition-all">❯</span>
-                   </button>
-                ) : (
-                  <div className="premium-card !p-10 shadow-3xl border-none relative overflow-hidden bg-white">
-                    <div className="relative z-10">
-                       <div className="flex items-center justify-between mb-10">
-                          <h3 className="text-2xl font-black text-slate-800 tracking-tight">Workshop Center 🛠️</h3>
-                          <button onClick={() => setShowTaskForm(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400 hover:text-red-500 transition-colors">✕</button>
-                       </div>
-
-                       <div className="flex p-1.5 bg-slate-100 rounded-2xl mb-8 max-w-md">
-                          <button className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${taskType === 'lesson' ? 'bg-white text-primary shadow-md' : 'text-slate-400'}`} onClick={() => setTaskType('lesson')}>📖 Lesson</button>
-                          <button className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${taskType === 'quiz' ? 'bg-white text-primary shadow-md' : 'text-slate-400'}`} onClick={() => setTaskType('quiz')}>📝 Exam</button>
-                       </div>
-
-                       <div className="space-y-6">
-                          <div className="space-y-2">
-                             <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Title Identity</label>
-                             <input type="text" placeholder="e.g. Chapter 1: Introduction to Kittronomy" className="input-field !py-4" value={taskData.title} onChange={(e) => setTaskData({...taskData, title: e.target.value})} />
-                          </div>
-
-                          {taskType === "lesson" && (
-                            <div className="space-y-6">
-                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Media Reference</label>
-                                  <input type="text" placeholder="Paste direct Image URL or YouTube Link..." className="input-field !py-4" value={taskData.mediaUrl} onChange={(e) => setTaskData({...taskData, mediaUrl: e.target.value})} />
-                               </div>
-                               <div className="space-y-2">
-                                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Curriculum Content</label>
-                                  <textarea className="input-field !rounded-3xl !py-6 min-h-[250px] resize-none" placeholder="Unleash your wisdom here..." value={taskData.content} onChange={(e) => setTaskData({...taskData, content: e.target.value})} />
-                               </div>
-                            </div>
-                          )}
-
-                          {taskType === "quiz" && (
-                            <div className="space-y-4">
-                               <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4 block mb-2">Examination Questions</label>
-                               {taskData.questions.map((q, idx) => (
-                                 <div key={idx} className="p-6 bg-slate-50 border border-slate-100 rounded-[2rem] space-y-4 shadow-inner">
-                                   <input type="text" placeholder={`Question ${idx + 1}`} className="input-field !bg-white !shadow-none !border-slate-200" value={q.q} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].q = e.target.value; setTaskData({...taskData, questions: qs}); }} />
-                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                     {q.options.map((opt, oIdx) => (
-                                       <input key={oIdx} type="text" placeholder={`Option ${oIdx + 1}`} className="w-full text-xs font-bold p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 ring-primary-light/50" value={opt} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].options[oIdx] = e.target.value; setTaskData({...taskData, questions: qs}); }} />
-                                     ))}
-                                   </div>
-                                   <div className="flex items-center gap-3">
-                                      <div className="flex-1 relative">
-                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none">✅</span>
-                                         <input type="text" placeholder="Correct Answer" className="w-full text-xs font-black pl-10 pr-4 py-3 bg-white border-2 border-green-100 rounded-xl outline-none focus:ring-2 ring-green-100 text-green-600" value={q.a} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].a = e.target.value; setTaskData({...taskData, questions: qs}); }} />
-                                      </div>
-                                   </div>
-                                 </div>
-                               ))}
-                               <button className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-black text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-all" onClick={() => setTaskData({...taskData, questions: [...taskData.questions, { q: "", options: ["", "", "", ""], a: "" }]})}>+ Add Question</button>
-                            </div>
-                          )}
-
-                          <button className="btn-primary !py-5 mt-4 w-full shadow-2xl shadow-primary/20 flex items-center justify-center gap-3" onClick={handleCreateTask}>Post to Class 🚀</button>
-                       </div>
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Sidebar info card */}
+            <div className="hidden lg:flex flex-col gap-6">
+               <div className="premium-card !p-6 bg-white border-slate-100 shadow-sm">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Classroom Code</h4>
+                  <div className="flex items-center justify-between gap-4 p-3 bg-slate-50 border border-slate-100 rounded-xl group/code">
+                     <span className="text-xl font-black text-primary font-mono select-all decoration-dotted underline underline-offset-4">{subject.code}</span>
+                     <button title="Copy Code" className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary transition-colors hover:scale-110" onClick={() => { navigator.clipboard.writeText(subject.code); alert("Code copied! 🐾"); }}>📋</button>
                   </div>
-                )}
-              </div>
-            )}
+               </div>
+               
+               <div className="premium-card !p-6 bg-white border-slate-100 shadow-sm">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Upcoming</h4>
+                  <p className="text-xs font-medium text-slate-400 italic">No modules due soon. 🌤️</p>
+                  <button className="text-[10px] font-black uppercase tracking-widest text-primary mt-6 hover:underline" onClick={() => setActiveTab('classwork')}>View All Modules</button>
+               </div>
+            </div>
 
-            <div className="grid grid-cols-1 gap-4 md:gap-6">
-              {(!subject.lessons || subject.lessons.length === 0) ? (
-                <div className="premium-card !p-20 text-center opacity-30 italic font-black uppercase tracking-widest">
-                  <div className="text-6xl mb-6">📭</div>
-                  The stream is currently silent.
-                </div>
-              ) : (
-                subject.lessons.map((lesson) => {
-                  const isCompleted = progress[subject.grade]?.[subject.title]?.includes(lesson.id.toString());
-                  return (
+            {/* Main Feed */}
+            <div className="lg:col-span-3 space-y-6">
+              {isTeacher && (
+                 <div 
+                   onClick={() => setActiveTab("classwork")}
+                   className="w-full premium-card !p-6 flex items-center gap-6 group hover:shadow-xl transition-all border-none bg-white text-left cursor-pointer ring-1 ring-slate-100"
+                 >
+                    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:bg-primary group-hover:text-white transition-colors">📣</div>
+                    <div className="flex-1">
+                      <p className="text-sm font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-600">Announce something to your kittens...</p>
+                    </div>
+                 </div>
+              )}
+
+              <div className="space-y-6">
+                {(!subject.lessons || subject.lessons.length === 0) ? (
+                  <div className="premium-card !p-20 text-center opacity-30 italic font-black uppercase tracking-widest bg-white border-none shadow-sm">
+                    <div className="text-6xl mb-6">🌿</div>
+                    The stream is quiet and peaceful.
+                  </div>
+                ) : (
+                  [...subject.lessons].reverse().map((lesson) => (
                     <div 
                       key={lesson.id} 
-                      className={`premium-card group !p-6 md:!p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer border-none shadow-xl bg-white ${isCompleted ? 'ring-2 ring-green-500/20' : ''}`}
+                      className="premium-card group !p-6 md:!p-8 bg-white border-slate-100 hover:shadow-xl transition-all cursor-pointer shadow-sm relative overflow-hidden"
                       onClick={() => router.push(`/lessons/${subject.grade}/${subject.title}/${lesson.id}`)}
                     >
-                       <div className="flex items-center gap-6 md:gap-8">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner transition-transform group-hover:scale-110 duration-500 ${isCompleted ? 'bg-green-50 text-green-500' : (lesson.type === 'quiz' ? 'bg-primary-light text-primary' : 'bg-slate-50 text-slate-600')}`}>
-                             {isCompleted ? '✅' : (lesson.type === 'quiz' ? '📝' : '📖')}
+                       <div className="flex items-start gap-6 relative z-10">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm transition-transform group-hover:scale-110 ${lesson.type === 'quiz' ? 'bg-primary text-white' : 'bg-slate-800 text-white'}`}>
+                             {lesson.type === 'quiz' ? '📝' : '📖'}
                           </div>
-                          <div>
-                            <h3 className="text-lg md:text-xl font-black text-slate-800 mb-1 leading-tight group-hover:text-primary transition-colors">{lesson.title}</h3>
-                            <div className="flex items-center gap-3">
-                               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{lesson.type === 'quiz' ? 'Knowledge Check' : 'Reading Module'}</span>
-                               {isCompleted && <span className="text-[10px] font-black uppercase tracking-widest text-green-500">Completed Accountable</span>}
-                            </div>
+                          <div className="flex-1 min-w-0">
+                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                                <h4 className="text-lg font-black text-slate-800 leading-tight truncate">{isTeacher ? "Creator posted a new module" : "New Material Available"}: <span className="text-primary">{lesson.title}</span></h4>
+                                <span className="text-[10px] font-bold text-slate-400 shrink-0">{new Date(lesson.created_at || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})}</span>
+                             </div>
+                             <p className="text-sm text-slate-500 font-medium line-clamp-2 max-w-2xl leading-relaxed">
+                                {lesson.type === 'quiz' ? 'A new examination has been scheduled to test your feline knowledge!' : (lesson.content ? lesson.content.substring(0, 150) + "..." : "A new reading module has been assigned to your scholars.")}
+                             </p>
                           </div>
                        </div>
-                       <button className={`btn-primary !py-3 !px-8 !text-xs !shadow-none group-hover:!shadow-lg group-hover:!shadow-primary/20 transition-all ${isCompleted ? '!bg-green-500' : (lesson.type === 'lecture' ? '!bg-slate-800' : '')}`}>
-                         {isCompleted ? "Review" : (lesson.type === "quiz" ? "Start" : "Study")} 🐾
-                       </button>
                     </div>
-                  );
-                })
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {activeTab === "lessons" && (
-           /* Same list as stream for lessons specific view */
-           <div className="grid grid-cols-1 gap-4">
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-8">Curriculum Module Index</h2>
-              {subject.lessons?.map(l => (
-                <div key={l.id} className="premium-card !p-6 flex items-center justify-between border-none shadow-md bg-white hover:shadow-xl transition-all cursor-pointer" onClick={() => router.push(`/lessons/${subject.grade}/${subject.title}/${l.id}`)}>
-                   <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg">{l.type === 'quiz' ? '📝' : '📖'}</div>
-                      <span className="font-bold text-slate-700">{l.title}</span>
+        {activeTab === "classwork" && (
+           <div className="animate-fade-in max-w-4xl mx-auto pb-24">
+              <div className="flex items-center justify-between mb-12">
+                 <h2 className="text-3xl font-black text-slate-800 tracking-tight">Classwork Library 🎒</h2>
+                 {isTeacher && (
+                    <button 
+                      className="btn-primary flex items-center gap-3 !py-3 !px-8 shadow-xl shadow-primary/20"
+                      onClick={() => setShowTaskForm(true)}
+                    >
+                       <span className="text-xl leading-none">+</span> Create Module
+                    </button>
+                 )}
+              </div>
+
+              {isTeacher && showTaskForm && (
+                <div className="premium-card !p-10 shadow-3xl border-none mb-12 bg-white relative">
+                   <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-xl font-black text-slate-700">New Module Drafting 🖋️</h3>
+                      <button onClick={() => setShowTaskForm(false)} className="text-slate-400 hover:text-red-500 font-bold transition-colors">✕ Cancel</button>
                    </div>
-                   <span className="text-xs font-black text-primary uppercase tracking-widest opacity-0 group-hover:opacity-100">Enter Module</span>
+                   
+                   <div className="flex p-1.5 bg-slate-50 border border-slate-100 rounded-2xl mb-8 max-w-sm">
+                      <button className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${taskType === 'lesson' ? 'bg-white text-primary shadow-md' : 'text-slate-400'}`} onClick={() => setTaskType('lesson')}>📖 Lesson</button>
+                      <button className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${taskType === 'quiz' ? 'bg-white text-primary shadow-md' : 'text-slate-400'}`} onClick={() => setTaskType('quiz')}>📝 Quiz</button>
+                   </div>
+
+                   <div className="space-y-6">
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Module Title</label>
+                         <input type="text" placeholder="Lesson or Exam name..." className="input-field !py-4" value={taskData.title} onChange={(e) => setTaskData({...taskData, title: e.target.value})} />
+                      </div>
+
+                      {taskType === "lesson" && (
+                        <div className="space-y-6 animate-fade-in">
+                           <div className="space-y-1">
+                              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Visual Media (URL)</label>
+                              <input type="text" placeholder="Paste image or youtube link..." className="input-field !py-4" value={taskData.mediaUrl} onChange={(e) => setTaskData({...taskData, mediaUrl: e.target.value})} />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Text Content</label>
+                              <textarea className="input-field !rounded-3xl !py-6 min-h-[300px] resize-none" placeholder="Masterfully explain the topic..." value={taskData.content} onChange={(e) => setTaskData({...taskData, content: e.target.value})} />
+                           </div>
+                        </div>
+                      )}
+
+                      {taskType === "quiz" && (
+                         <div className="space-y-6 animate-fade-in">
+                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4 block mb-2">Examination Questions</label>
+                            {taskData.questions.map((q, idx) => (
+                              <div key={idx} className="p-6 bg-slate-50 border border-slate-100 rounded-[2rem] space-y-4 shadow-inner">
+                                <input type="text" placeholder={`Question ${idx + 1}`} className="input-field !bg-white !shadow-none !border-slate-200" value={q.q} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].q = e.target.value; setTaskData({...taskData, questions: qs}); }} />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {q.options.map((opt, oIdx) => (
+                                    <input key={oIdx} type="text" placeholder={`Option ${oIdx + 1}`} className="w-full text-xs font-bold p-3 bg-white border border-slate-200 rounded-xl outline-none" value={opt} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].options[oIdx] = e.target.value; setTaskData({...taskData, questions: qs}); }} />
+                                  ))}
+                                </div>
+                                <div className="flex items-center gap-3">
+                                   <input type="text" placeholder="Correct Answer" className="w-full text-xs font-black px-4 py-3 bg-white border-2 border-green-100 rounded-xl placeholder:text-green-200 text-green-600 outline-none" value={q.a} onChange={(e) => { const qs = [...taskData.questions]; qs[idx].a = e.target.value; setTaskData({...taskData, questions: qs}); }} />
+                                </div>
+                              </div>
+                            ))}
+                            <button className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-black text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-all" onClick={() => setTaskData({...taskData, questions: [...taskData.questions, { q: "", options: ["", "", "", ""], a: "" }]})}>+ Add Question</button>
+                         </div>
+                      )}
+
+                      <button className="btn-primary !py-5 mt-4 w-full shadow-2xl flex items-center justify-center gap-3" onClick={handleCreateTask}>Post Module to Class 🚀</button>
+                   </div>
                 </div>
-              ))}
+              )}
+
+              <div className="space-y-12">
+                 <div className="border-b-2 border-primary w-24 mb-6"></div>
+                 <div className="space-y-4">
+                    {subject.lessons?.map(l => {
+                      const complete = progress[subject.grade]?.[subject.title]?.includes(l.id.toString());
+                      return (
+                        <div key={l.id} className="premium-card !p-0 bg-white border-slate-100 overflow-hidden hover:shadow-xl transition-all cursor-pointer group" onClick={() => router.push(`/lessons/${subject.grade}/${subject.title}/${l.id}`)}>
+                           <div className="flex items-center border-b border-slate-50 p-6 md:p-8">
+                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mr-6 md:mr-8 shrink-0 ${complete ? 'bg-green-100 text-green-600' : (l.type === 'quiz' ? 'bg-primary text-white' : 'bg-slate-800 text-white')}`}>
+                                 {complete ? '✅' : (l.type === 'quiz' ? '📝' : '📖')}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <h4 className="text-lg font-black text-slate-800 group-hover:text-primary transition-colors truncate">{l.title}</h4>
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{l.type === 'lesson' ? 'Lecture Material' : 'Knowledge Check'}</p>
+                              </div>
+                              <span className="text-slate-300 ml-4 group-hover:text-primary transition-colors">❯</span>
+                           </div>
+                        </div>
+                      );
+                    })}
+                 </div>
+              </div>
            </div>
         )}
 
-        {activeTab === "students" && isTeacher && (
-          <div className="space-y-12">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {students.map(s => (
-                  <div key={s.id} className="premium-card !p-8 flex items-center justify-between bg-white border-none shadow-xl hover:shadow-2xl transition-all group">
-                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 bg-gradient-to-tr from-primary-light to-white rounded-3xl flex items-center justify-center text-xl font-black text-primary shadow-inner">
-                           {(s.name || "K")[0].toUpperCase()}
-                        </div>
-                        <div>
-                           <h4 className="text-lg font-black text-slate-800 mb-1">{s.name}</h4>
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Level {s.level || 1} Scholar</p>
-                        </div>
-                     </div>
-                     <button onClick={() => handleRemoveStudent(s.id)} className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-400 rounded-xl border border-red-100 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">🗑️</button>
-                  </div>
-                ))}
-                {students.length === 0 && (
-                   <div className="col-span-full py-20 border-2 border-dashed border-slate-100 rounded-[2rem] text-center opacity-30 italic font-black uppercase tracking-widest">
-                      The roster is currently void.
+        {activeTab === "people" && (
+          <div className="animate-fade-in max-w-3xl mx-auto space-y-16 pb-24">
+             {/* Teachers */}
+             <div>
+                <div className="flex items-center justify-between mb-8 border-b-2 border-primary-light/30 pb-4">
+                   <h3 className="text-2xl font-black text-slate-800 tracking-tight">Teachers</h3>
+                   <span className="text-xs font-black text-primary lowercase tracking-wider">1 staff</span>
+                </div>
+                <div className="flex items-center gap-5 p-6 bg-white rounded-3xl shadow-sm border border-slate-100">
+                   <div className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-lg">
+                      T
                    </div>
-                )}
+                   <div>
+                      <h4 className="font-extrabold text-slate-800">Faculty Member</h4>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Main Educator</p>
+                   </div>
+                </div>
+             </div>
+
+             {/* Students */}
+             <div>
+                <div className="flex items-center justify-between mb-8 border-b-2 border-primary-light/30 pb-4">
+                   <h3 className="text-2xl font-black text-slate-800 tracking-tight">Classmates</h3>
+                   <span className="text-xs font-black text-primary lowercase tracking-wider">{students.length} kittens</span>
+                </div>
+                <div className="space-y-4">
+                   {students.map(s => (
+                     <div key={s.id} className="flex items-center justify-between p-6 bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                        <div className="flex items-center gap-5">
+                           <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center font-black group-hover:bg-primary-light group-hover:text-white transition-all">
+                              {(s.name || "K")[0].toUpperCase()}
+                           </div>
+                           <h4 className="font-extrabold text-slate-700">{s.name}</h4>
+                        </div>
+                        {isTeacher && <button onClick={() => handleRemoveStudent(s.id)} className="text-red-400 hover:text-red-600 transition-colors px-2 opacity-0 group-hover:opacity-100">Remove</button>}
+                     </div>
+                   ))}
+                   {students.length === 0 && (
+                      <div className="py-20 text-center opacity-30 italic font-black uppercase tracking-widest">
+                         Room occupancy: zero kittens.
+                      </div>
+                   )}
+                </div>
              </div>
           </div>
         )}
