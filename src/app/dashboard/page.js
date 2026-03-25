@@ -171,8 +171,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans pb-24">
       {/* Background Blobs */}
-      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
-      <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-secondary/10 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-secondary/10 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+      </div>
       
       <div className="container mx-auto px-6 pt-10 relative z-10">
         <header className="premium-card !p-10 !bg-gradient-to-br from-primary to-accent text-white mb-10 overflow-hidden relative shadow-2xl">
@@ -242,15 +244,17 @@ export default function Dashboard() {
                 </button>
              </div>
              
-             <div className="flex gap-3">
-               {(user.role === 'Headmaster' || user.role === 'Teacher') && (
-                 <button className="btn-secondary !bg-indigo-600/20 !text-white !border-white/20 hover:!bg-indigo-600/40 !backdrop-blur-md" onClick={() => router.push("/admin")}>
-                    Admin Panel 👑
+             <div className="overflow-x-auto no-scrollbar">
+               <div className="flex gap-3">
+                 {(user.role === 'Headmaster' || user.role === 'Teacher') && (
+                   <button className="btn-secondary !bg-indigo-600/20 !text-white !border-white/20 hover:!bg-indigo-600/40 !backdrop-blur-md" onClick={() => router.push("/admin")}>
+                      Admin Panel 👑
+                   </button>
+                 )}
+                 <button className="btn-secondary !bg-white/10 !text-white !border-white/10 hover:!bg-red-500/20 !backdrop-blur-md" onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}>
+                    Logout 🚪
                  </button>
-               )}
-               <button className="btn-secondary !bg-white/10 !text-white !border-white/10 hover:!bg-red-500/20 !backdrop-blur-md" onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}>
-                  Logout 🚪
-               </button>
+               </div>
              </div>
           </div>
         </header>
@@ -373,7 +377,7 @@ export default function Dashboard() {
                   </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 bg-white/95">
+               <div className="flex-1 overflow-y-auto p-8 bg-white/95 no-scrollbar">
                   {showAnnouncements ? (
                     <div className="space-y-4">
                        {announcements.length === 0 ? <div className="text-center py-10 text-slate-300 font-bold">No announcements yet</div> : 

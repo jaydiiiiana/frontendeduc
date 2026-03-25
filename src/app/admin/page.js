@@ -367,8 +367,10 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans pb-24">
       {/* Background Blobs */}
-      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
-      <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-indigo-100 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-indigo-100 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+      </div>
 
       <div className="container mx-auto px-6 pt-10 relative z-10">
         {/* Header */}
@@ -1203,7 +1205,7 @@ export default function AdminDashboard() {
                    </div>
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Total: {invites?.length || 0}</span>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto no-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100">

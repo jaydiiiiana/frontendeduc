@@ -125,7 +125,7 @@ export default function CreatorPanel() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-300 relative overflow-hidden selection:bg-primary/30">
+    <div className="min-h-screen bg-slate-900 text-slate-300 relative overflow-x-hidden selection:bg-primary/30">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none -y-10">
          <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>

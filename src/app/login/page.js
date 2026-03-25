@@ -71,12 +71,14 @@ export default function Home() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen p-6 bg-slate-50 relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-[#fcfaff] text-slate-800 relative overflow-x-hidden font-sans selection:bg-primary/20">
 
             {/* Animated Background Blobs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/20 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
-            <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-accent/20 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/20 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
+                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-accent/20 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+            </div>
 
             {/* Floating Elements (Stars/Paws) */}
             <div className="absolute top-20 left-1/4 text-primary/30 text-4xl animate-float-slow select-none pointer-events-none">✨</div>
@@ -245,7 +247,7 @@ export default function Home() {
             <footer className="w-full max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 mt-20 opacity-60">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">© 2026 Cat Academy Project</p>
                 <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    <a href="mailto:support@educ.ph" className="hover:text-primary transition-colors">Support: hello@educ.ph</a>
+                    <a href="mailto:risingtechinnovations@gmail.com" className="hover:text-primary transition-colors">Support: risingtechinnovations@gmail.com</a>
                     <span className="cursor-pointer hover:text-slate-800">Privacy</span>
                     <span className="cursor-pointer hover:text-slate-800">Terms</span>
                 </div>

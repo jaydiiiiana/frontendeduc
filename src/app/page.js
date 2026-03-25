@@ -7,18 +7,13 @@ export default function LandingPage() {
   const [studentCount, setStudentCount] = useState(0);
   const [successRate, setSuccessRate] = useState(0);
   const [totalSubjects, setTotalSubjects] = useState(0);
+  const [user, setUser] = useState(null);
   const deferredPrompt = useRef(null);
 
   useEffect(() => {
-    // Check if user already logged in
+    // Check if user is logged in for nav
     const stored = localStorage.getItem("catUser");
-    if (stored) {
-      const user = JSON.parse(stored);
-      if (user.role === 'Creator') router.push("/creator");
-      else if (user.role === 'Headmaster' || user.role === 'Teacher') router.push("/admin");
-      else router.push("/dashboard");
-      return;
-    }
+    if (stored) setUser(JSON.parse(stored));
 
     const fetchStats = async () => {
        try {
@@ -57,9 +52,11 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 relative font-sans">
         {/* Animated Background Blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
-        <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-secondary/10 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
-        <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-accent/15 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
+          <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-secondary/10 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-accent/15 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+        </div>
 
       {/* Navigation */}
       <nav className="fixed w-full top-0 px-6 md:px-12 py-4 flex justify-between items-center z-50 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm transition-all">
@@ -209,7 +206,7 @@ export default function LandingPage() {
                      </li>
                      <li className="flex items-center gap-4 group">
                         <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-xl shrink-0 group-hover:bg-green-500 group-hover:text-white transition-colors">✉️</div>
-                        <a href="mailto:hello@educ.ph" className="text-slate-600 font-bold group-hover:text-green-500 transition-colors">support@educ.ph</a>
+                        <a href="mailto:risingtechinnovations@gmail.com" className="text-slate-600 font-bold group-hover:text-green-500 transition-colors">risingtechinnovations@gmail.com</a>
                      </li>
                   </ul>
                </div>
