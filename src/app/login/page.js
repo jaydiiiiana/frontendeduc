@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
     const router = useRouter();
     const [mode, setMode] = useState("login");
-    const [formData, setFormData] = useState({ name: "", password: "", age: "", grade: "", verificationCode: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", password: "", age: "", grade: "", verificationCode: "" });
     const [loginForm, setLoginForm] = useState({ name: "", password: "" });
     const [step, setStep] = useState(1);
     const [error, setError] = useState("");
@@ -22,8 +22,19 @@ export default function Home() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        
+        // Frontend validation for email domain
+        if (!formData.email.endsWith("@educ.ph")) {
+            setError("Wait! 🛑 Registration requires an official @educ.ph email.");
+            return;
+        }
+
         try {
-            const response = await fetch("/api/auth/register", { method: "POST", body: JSON.stringify(formData) });
+            const response = await fetch("/api/auth/register", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData) 
+            });
             const data = await response.json();
             if (data.success) {
                 localStorage.setItem("catUser", JSON.stringify(data.user));
@@ -134,7 +145,7 @@ export default function Home() {
                                 Not part of the Academy yet? <span className="text-primary cursor-pointer font-bold hover:text-primary-dark transition-colors" onClick={() => { setMode("register"); setError(""); }}>Apply Now</span>
                             </p>
                         </div>
-                    ) : (
+                    ) : ( // TargetLintErrorIds: [react-jsx-nesting]
                         <div className="w-full">
                             {step === 1 ? (
                                 <div className="flex flex-col gap-5 w-full">
@@ -142,6 +153,10 @@ export default function Home() {
                                         <div className="flex flex-col gap-1.5 md:col-span-2">
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
                                             <input type="text" placeholder="Pick a cool name" className="input-field py-3.5" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5 md:col-span-2">
+                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">School Email (@educ.ph)</label>
+                                            <input type="email" placeholder="you@educ.ph" className="input-field py-3.5" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase() })} />
                                         </div>
                                         <div className="flex flex-col gap-1.5 md:col-span-2">
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Password</label>
@@ -152,11 +167,11 @@ export default function Home() {
                                             <input type="number" placeholder="Eg. 8" className="input-field py-3.5" value={formData.age} onChange={handleAgeChange} />
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4 flex items-center gap-1">Invite Token <span role="img" aria-label="shield">🛡️</span></label>
+                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4 flex items-center gap-1">Invite Code <span className="text-red-500 font-black ml-1 text-[8px] uppercase tracking-tighter">Required 🛡️</span></label>
                                             <input type="text" placeholder="Provided code" className="input-field py-3.5" value={formData.verificationCode} onChange={(e) => setFormData({ ...formData, verificationCode: e.target.value })} />
                                         </div>
                                     </div>
-                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.age || !formData.verificationCode || !formData.password} onClick={() => setStep(2)}>
+                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.email || !formData.age || !formData.verificationCode || !formData.password} onClick={() => setStep(2)}>
                                         Next Step <span className="text-lg leading-none">✨</span>
                                     </button>
 
