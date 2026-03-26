@@ -137,18 +137,18 @@ export default function LandingPage() {
          <section className="relative z-10 container mx-auto py-24 px-6 max-w-5xl">
             <div className="glass-card flex flex-col md:flex-row justify-between gap-12 text-center py-12 px-8">
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{studentCount}</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Register School <span className="ml-1">😸</span></p>
+                  <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{totalSchools}</h2>
+                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Register School <span className="ml-1">🏫</span></p>
                </div>
                <div className="hidden md:block w-px bg-slate-200"></div>
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-accent-blue mb-2 drop-shadow-sm">{totalSubjects}+</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Cat User <span className="ml-1">📚</span></p>
+                  <h2 className="text-6xl font-black text-accent-blue mb-2 drop-shadow-sm">{totalUsers}</h2>
+                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Cat User <span className="ml-1">😸</span></p>
                </div>
                <div className="hidden md:block w-px bg-slate-200"></div>
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{successRate}%</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Success Rate <span className="ml-1">🎓</span></p>
+                  <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{totalSubjects}</h2>
+                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Fun Subjects <span className="ml-1">🎓</span></p>
                </div>
             </div>
          </section>
