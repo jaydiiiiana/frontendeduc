@@ -7,6 +7,7 @@ export default function LandingPage() {
    const [totalUsers, setTotalUsers] = useState(0);
    const [totalSchools, setTotalSchools] = useState(0);
    const [totalSubjects, setTotalSubjects] = useState(0);
+   const [successRate, setSuccessRate] = useState(0);
    const [user, setUser] = useState(null);
    const deferredPrompt = useRef(null);
 
@@ -22,7 +23,8 @@ export default function LandingPage() {
             setTotalUsers(data.totalUsers || 2);
             setTotalSchools(data.totalSchools || 1);
             setTotalSubjects(data.totalSubjects || 5);
-         } catch (e) { setTotalUsers(2); setTotalSchools(1); setTotalSubjects(5); }
+            setSuccessRate(data.successRate || 95);
+         } catch (e) { setTotalUsers(2); setTotalSchools(1); setTotalSubjects(5); setSuccessRate(95); }
       };
       fetchStats();
 
@@ -147,8 +149,8 @@ export default function LandingPage() {
                </div>
                <div className="hidden md:block w-px bg-slate-200"></div>
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{totalSubjects}</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Fun Subjects <span className="ml-1">🎓</span></p>
+                  <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{successRate}%</h2>
+                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Success Rate <span className="ml-1">🎓</span></p>
                </div>
             </div>
          </section>
