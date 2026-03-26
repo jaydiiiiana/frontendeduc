@@ -12,6 +12,17 @@ export default function LandingPage() {
    const [stories, setStories] = useState([]);
    const [ratingData, setRatingData] = useState({ average: 0, count: 0 });
    const [newStory, setNewStory] = useState("");
+   const [showEnrollModal, setShowEnrollModal] = useState(false);
+   const [selectedPlan, setSelectedPlan] = useState(null);
+   const [enrollmentForm, setEnrollmentForm] = useState({
+      schoolName: "",
+      contactPerson: "",
+      preferredDate: "",
+      preferredTime: "",
+      meetingType: "Zoom",
+      notes: ""
+   });
+   const [enrollStatus, setEnrollStatus] = useState({ loading: false, success: false });
    const deferredPrompt = useRef(null);
 
    useEffect(() => {
@@ -58,6 +69,20 @@ export default function LandingPage() {
       window.addEventListener('beforeinstallprompt', handler);
       return () => window.removeEventListener('beforeinstallprompt', handler);
    }, []);
+
+   const handleEnrollSubmit = (e) => {
+      e.preventDefault();
+      setEnrollStatus({ loading: true, success: false });
+      // Simulation of submission
+      setTimeout(() => {
+         setEnrollStatus({ loading: false, success: true });
+         setTimeout(() => {
+            setShowEnrollModal(false);
+            setEnrollStatus({ loading: false, success: false });
+            setEnrollmentForm({ schoolName: "", contactPerson: "", preferredDate: "", preferredTime: "", meetingType: "Zoom", notes: "" });
+         }, 3000);
+      }, 1500);
+   };
 
    const handleDownload = async () => {
       if (deferredPrompt.current) {
@@ -201,7 +226,10 @@ export default function LandingPage() {
                            <li className="flex items-center gap-2 justify-center">✅ Advanced Analytics</li>
                            <li className="flex items-center gap-2 justify-center">✅ Official Certification</li>
                         </ul>
-                        <button className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${p.popular ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-500 hover:bg-primary/10 hover:text-primary'}`}>
+                        <button 
+                          className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${p.popular ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-500 hover:bg-primary/10 hover:text-primary'}`}
+                          onClick={() => { setSelectedPlan(p); setShowEnrollModal(true); }}
+                        >
                            Enroll Now
                         </button>
                      </div>
@@ -209,6 +237,124 @@ export default function LandingPage() {
                </div>
             </div>
          </section>
+
+         {/* Enrollment Modal */}
+         {showEnrollModal && (
+           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+              <div className="premium-card !p-0 max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-3xl border-none animate-scale-in flex flex-col">
+                 {/* Modal Header */}
+                 <div className="bg-primary p-8 text-white relative">
+                    <button 
+                      onClick={() => setShowEnrollModal(false)}
+                      className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all text-xl"
+                    >
+                       ✕
+                    </button>
+                    <p className="text-[10px] font-black uppercase tracking-[3px] opacity-70 mb-2">Academic Onboarding</p>
+                    <h3 className="text-3xl font-black tracking-tight">Schedule Your Enrollment Meeting</h3>
+                    <p className="text-sm font-medium opacity-80 mt-2">Request a session for the <span className="underline decoration-secondary decoration-2 underline-offset-4">{selectedPlan?.name} Plan</span> to verify your school registry.</p>
+                 </div>
+
+                 {/* Modal Body */}
+                 <div className="p-8 overflow-y-auto no-scrollbar flex-1 bg-white border-t border-slate-100">
+                    {enrollStatus.success ? (
+                       <div className="py-12 text-center animate-fade-in flex flex-col items-center">
+                          <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner animate-bounce-slow">✅</div>
+                          <h4 className="text-2xl font-black text-slate-800 mb-2">Request Transmitted!</h4>
+                          <p className="text-slate-500 font-medium max-w-xs mx-auto">Your academic concierge will contact you within 24 hours to confirm the {enrollmentForm.meetingType} meeting. 🐾</p>
+                       </div>
+                    ) : (
+                       <form onSubmit={handleEnrollSubmit} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Official School Name</label>
+                                <input 
+                                   required
+                                   type="text" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   placeholder="e.g. St. Catherine Academy" 
+                                   value={enrollmentForm.schoolName}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, schoolName: e.target.value})}
+                                />
+                             </div>
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Contact Representative</label>
+                                <input 
+                                   required
+                                   type="text" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   placeholder="Full Name" 
+                                   value={enrollmentForm.contactPerson}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, contactPerson: e.target.value})}
+                                />
+                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Meeting Date</label>
+                                <input 
+                                   required
+                                   type="date" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   value={enrollmentForm.preferredDate}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, preferredDate: e.target.value})}
+                                />
+                             </div>
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Preferred Time</label>
+                                <input 
+                                   required
+                                   type="time" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   value={enrollmentForm.preferredTime}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, preferredTime: e.target.value})}
+                                />
+                             </div>
+                          </div>
+
+                          <div className="space-y-4">
+                             <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Meeting Environment</label>
+                             <div className="flex gap-4">
+                                {["Zoom", "Personal"].map(type => (
+                                   <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setEnrollmentForm({...enrollmentForm, meetingType: type})}
+                                      className={`flex-1 py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-3 ${enrollmentForm.meetingType === type ? 'border-primary bg-primary/5 text-primary shadow-sm' : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                   >
+                                      {type === 'Zoom' ? '💻 Online Zoom' : '🤝 Personal Meet'}
+                                   </button>
+                                ))}
+                             </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                             <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Preparation & Requirements</label>
+                             <textarea 
+                                className="input-field !rounded-3xl !py-4 min-h-[100px] resize-none !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                placeholder="What have you prepared for the meeting? (e.g. valid IDs, school permits)" 
+                                value={enrollmentForm.notes}
+                                onChange={(e) => setEnrollmentForm({...enrollmentForm, notes: e.target.value})}
+                             />
+                          </div>
+
+                          <button 
+                            disabled={enrollStatus.loading}
+                            className="btn-primary w-full !py-5 shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                          >
+                             {enrollStatus.loading ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                             ) : (
+                                <>Request Onboarding Meeting 🚀</>
+                             )}
+                          </button>
+                       </form>
+                    )}
+                 </div>
+              </div>
+           </div>
+         )}
 
          {/* Success Stories Section */}
          <section id="success-stories" className="relative z-10 py-24 px-6 bg-white">
