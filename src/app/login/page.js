@@ -271,17 +271,9 @@ export default function Home() {
                                                         </optgroup>
                                                     ))
                                                 ) : (
-                                                    <>
-                                                        {["Kinder 1", "Kinder 2"].map(g => <option key={g} value={g}>{g}</option>)}
-                                                        {[1, 2, 3, 4, 5, 6].map(gradeNum => (
-                                                            <optgroup key={gradeNum} label={`Grade ${gradeNum}`} className="font-bold text-slate-800">
-                                                                <option value={`Grade ${gradeNum}`} className="font-medium">Standard Room</option>
-                                                                <option value={`Grade ${gradeNum} - Section 1`} className="font-medium">Section 1</option>
-                                                                <option value={`Grade ${gradeNum} - Section 2`} className="font-medium">Section 2</option>
-                                                                <option value={`Grade ${gradeNum} - Section 3`} className="font-medium">Section 3</option>
-                                                            </optgroup>
-                                                        ))}
-                                                    </>
+                                                    <option disabled value="">
+                                                       {formData.verificationCode ? "School Structure Not Found 😿" : "Enter Invite Code first..."}
+                                                    </option>
                                                 )}
                                             </select>
                                             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 font-bold">
