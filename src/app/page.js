@@ -200,10 +200,11 @@ export default function LandingPage() {
                      <ul className="space-y-6">
                         <li className="flex items-start gap-4">
                            <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xl shrink-0">📍</div>
-                           <p className="text-slate-600 font-bold leading-tight">Alley 3 Pasan Valenzuela City </p>                       </li>
+                           <p className="text-slate-600 font-bold leading-tight">Alley 3 Pasan Valenzuela City </p>
+                        </li>
                         <li className="flex items-center gap-4 group">
                            <div className="w-10 h-10 rounded-xl bg-accent-blue/5 flex items-center justify-center text-xl shrink-0 group-hover:bg-accent-blue group-hover:text-white transition-colors">📞</div>
-                           <a href="tel:+639000000000" className="text-slate-600 font-bold group-hover:text-accent-blue transition-colors">+63 9458715697</a>
+                           <a href="tel:+639458715697" className="text-slate-600 font-bold group-hover:text-accent-blue transition-colors">+63 9458715697</a>
                         </li>
                         <li className="flex items-center gap-4 group">
                            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-xl shrink-0 group-hover:bg-green-500 group-hover:text-white transition-colors">✉️</div>
