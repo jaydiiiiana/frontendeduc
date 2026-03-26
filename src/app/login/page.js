@@ -71,7 +71,7 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fcfaff] text-slate-800 relative overflow-x-hidden font-sans selection:bg-primary/20">
+        <div className="min-h-screen bg-[#fcfaff] text-slate-800 relative overflow-x-hidden font-sans selection:bg-primary/20 flex flex-col">
 
             {/* Animated Background Blobs */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -94,7 +94,8 @@ export default function Home() {
             </button>
 
             {/* Main Container */}
-            <div className="premium-card cat-ears max-w-[480px] w-full z-10 animate-fade-in relative flex flex-col justify-center min-h-[500px]">
+            <div className="flex-1 flex items-center justify-center p-4 w-full z-10 relative mt-16">
+                <div className="premium-card cat-ears max-w-[480px] w-full animate-fade-in relative flex flex-col justify-center min-h-[500px]">
 
                 <div className="mb-8 text-center relative z-10">
                     <div className="inline-block p-4 bg-primary-light rounded-full mb-4 shadow-inner border border-white">
@@ -241,6 +242,7 @@ export default function Home() {
                         </div>
                     )}
                 </div>
+            </div>
             </div>
 
             {/* Simple Help Footer */}
