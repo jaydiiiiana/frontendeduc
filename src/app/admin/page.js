@@ -411,17 +411,17 @@ export default function AdminDashboard() {
     } catch (e) { alert("Failed! " + e.message); }
   };
 
-  if (loading) return <div className="flex-center" style={{ height: "100vh" }}>Accessing Cat Academy Academy... 🐾</div>;
+  if (loading) return <div className="flex items-center justify-center h-screen font-black text-primary">Accessing Cat Academy Academy... 🐾</div>;
 
   if (isExpired) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#fff5f5] p-6 text-center relative overflow-hidden">
+      <div className="min-h-screen w-full flex items-center justify-center bg-error-light p-6 text-center relative overflow-hidden">
         {/* Background Blobs for Frozen State */}
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-200/30 filter blur-[80px] blob-shape"></div>
         
         <div className="premium-card cat-ears max-w-lg w-full border-2 border-red-400 shadow-2xl relative z-10 animate-scale-in">
-           <div style={{ fontSize: "5rem", marginBottom: "1rem" }}>🔒🏫</div>
-           <h2 style={{ color: "#ef4444", marginBottom: "1rem" }}>School Access Frozen</h2>
+           <div className="text-[5rem] mb-4">🔒🏫</div>
+           <h2 className="text-error-dark mb-4 text-2xl font-black">School Access Frozen</h2>
            <p style={{ color: "#666", lineHeight: "1.6", marginBottom: "2rem" }}>
               Your Headmaster subscription expired on **{expiryDate}**. 🐾 <br />
               All school operations, including for your teachers and students, have been temporarily paused.

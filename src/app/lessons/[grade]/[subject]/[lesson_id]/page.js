@@ -142,7 +142,7 @@ export default function ScholarLessonPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF6] flex overflow-hidden">
+    <div className="min-h-screen bg-bg-paper flex overflow-hidden">
       
       {/* Sidebar - Modern Glass */}
       <aside className={`fixed inset-y-0 left-0 w-80 bg-white/80 backdrop-blur-xl border-r border-slate-100 z-50 transform transition-transform duration-500 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>

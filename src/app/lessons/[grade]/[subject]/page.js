@@ -63,7 +63,7 @@ export default function SubjectHome() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FDF8F6] relative overflow-hidden">
+    <div className="min-h-screen bg-bg-paper relative overflow-hidden">
       {/* Background Orbs */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] bg-primary-light/10 rounded-full blur-[100px] animate-pulse"></div>

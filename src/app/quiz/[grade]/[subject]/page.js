@@ -67,16 +67,16 @@ export default function QuizPage() {
 
   if (isFinished) {
     return (
-      <div className="flex-center" style={{ height: "100vh", padding: "2rem" }}>
-        <div className="premium-card" style={{ maxWidth: "500px", width: "100%", textAlign: "center" }}>
-          <span style={{ fontSize: "5rem" }}>🏆</span>
-          <h1>Quizzed Out! 🐾</h1>
-          <p style={{ margin: "1rem 0" }}>Great work! You scored {score} points!</p>
-          <div style={{ background: "var(--primary-light)", padding: "1.5rem", borderRadius: "1.5rem", marginBottom: "2rem" }}>
-             <p>New Level: <strong>{user.level}</strong></p>
-             <p>Total EXP: <strong>{user.exp}</strong></p>
+      <div className="flex items-center justify-center min-h-screen p-8 bg-slate-50">
+        <div className="premium-card max-w-md w-full text-center animate-scale-in">
+          <span className="text-8xl mb-6 block">🏆</span>
+          <h1 className="text-4xl font-black text-slate-800 mb-2">Quizzed Out! 🐾</h1>
+          <p className="text-slate-500 font-medium mb-8">Great work! You scored <span className="text-primary font-black">{score}</span> points!</p>
+          <div className="bg-primary-light/50 p-6 rounded-3xl mb-8 border border-primary/10">
+             <p className="text-slate-600 font-bold mb-1">New Level: <span className="text-primary font-black text-xl">{user.level}</span></p>
+             <p className="text-slate-600 font-bold">Total EXP: <span className="text-primary font-black text-xl">{user.exp}</span></p>
           </div>
-          <button className="btn-primary" onClick={() => router.push("/dashboard")}>Return to Dashboard 🐾</button>
+          <button className="btn-primary w-full" onClick={() => router.push("/dashboard")}>Return to Dashboard 🐾</button>
         </div>
       </div>
     );
@@ -85,56 +85,59 @@ export default function QuizPage() {
   const currentQ = questions[currentQuestionIndex];
 
   return (
-    <div className="container" style={{ padding: "clamp(1rem, 5vw, 4rem) 0" }}>
-      <div className="premium-card cat-ears" style={{ maxWidth: "800px", margin: "0 auto", position: "relative", padding: "clamp(1.5rem, 5vw, 3rem)" }}>
-        <h2 style={{ marginBottom: "1.5rem", fontSize: "clamp(1.2rem, 4vw, 2rem)" }}>{subjectTitle} Quiz 🐾</h2>
+    <div className="container mx-auto px-6 py-12 md:py-24">
+      <div className="premium-card max-w-3xl mx-auto relative !p-8 md:!p-16">
+        <div className="flex justify-between items-center mb-10">
+           <h2 className="text-2xl md:text-3xl font-black text-slate-800">{subjectTitle} Quiz 🐾</h2>
+           <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">Scholar Assessment</span>
+        </div>
         
         {/* Progress Tracker */}
-        <div style={{ width: "100%", background: "#eee", height: "10px", borderRadius: "10px", marginBottom: "2.5rem", position: "relative" }}>
-          <div style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`, height: "100%", background: "var(--accent-blue)", borderRadius: "10px", transition: "width 0.5s cubic-bezier(0.1, 0, 0.1, 1)" }}></div>
-          <span style={{ position: "absolute", top: "12px", right: 0, fontSize: "0.8rem", fontWeight: "bold", opacity: 0.5 }}>Question {currentQuestionIndex + 1} of {questions.length}</span>
+        <div className="w-full bg-slate-100 h-3 rounded-full mb-12 relative overflow-hidden">
+          <div 
+            className="absolute left-0 top-0 h-full bg-accent-blue rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+          ></div>
         </div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 text-right italic">Question {currentQuestionIndex + 1} of {questions.length}</p>
 
-        <div style={{ marginBottom: "2.5rem", marginTop: "1rem" }}>
-          <h3 style={{ fontSize: "clamp(1.4rem, 5vw, 2rem)", marginBottom: "2rem", lineHeight: "1.4" }}>{currentQ.q}</h3>
+        <div className="mb-12">
+          <h3 className="text-2xl md:text-4xl font-black text-slate-800 mb-10 leading-snug">{currentQ.q}</h3>
           
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.2rem" }}>
-            {currentQ.options.map((opt, i) => (
-              <button 
-                key={i} 
-                className={`premium-card ${selectedOption === opt ? (opt === currentQ.a ? "correct" : "wrong") : ""}`}
-                style={{ 
-                  cursor: isAnswered ? "default" : "pointer", 
-                  padding: "1.2rem", 
-                  fontSize: "clamp(1rem, 3vw, 1.2rem)", 
-                  border: "3px solid",
-                  borderColor: selectedOption === opt ? "var(--primary-color)" : "transparent",
-                  background: isAnswered && opt === currentQ.a ? "#e6ffec" : (selectedOption === opt ? "#fff5f8" : "#fff"),
-                  color: isAnswered && opt === currentQ.a ? "#2d2d2d" : "inherit",
-                  textAlign: "center"
-                }}
-                disabled={isAnswered}
-                onClick={() => handleAnswer(opt)}
-              >
-                {opt}
-              </button>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {currentQ.options.map((opt, i) => {
+              const isCorrect = isAnswered && opt === currentQ.a;
+              const isSelected = selectedOption === opt;
+              const isWrong = isAnswered && isSelected && opt !== currentQ.a;
+              
+              return (
+                <button 
+                  key={i} 
+                  disabled={isAnswered}
+                  onClick={() => handleAnswer(opt)}
+                  className={`
+                    p-6 rounded-3xl text-lg md:text-xl font-bold transition-all duration-300 border-4 border-transparent text-center
+                    ${!isAnswered ? 'bg-white shadow-premium hover:shadow-xl hover:border-primary/10 hover:-translate-y-1' : ''}
+                    ${isCorrect ? 'bg-success-light !border-green-500/50 text-slate-800' : ''}
+                    ${isWrong ? 'bg-error-light !border-error-dark/30 text-slate-800' : ''}
+                    ${isAnswered && !isCorrect && !isWrong ? 'bg-slate-50 opacity-40 grayscale' : ''}
+                  `}
+                >
+                  {opt}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {isAnswered && (
-          <div style={{ marginTop: "3rem", display: "flex", justifyContent: "center" }}>
-            <button className="btn-primary" style={{ padding: "1.2rem 4rem", width: "min(400px, 100%)" }} onClick={handleNext}>
+          <div className="mt-12 flex justify-center animate-fade-in">
+            <button className="btn-primary !py-5 !px-16 w-full md:w-auto min-w-[300px] shadow-xl shadow-primary/20" onClick={handleNext}>
               {currentQuestionIndex < questions.length - 1 ? "Next Question 🐾" : "Finish Quiz 🐾"}
             </button>
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        .correct { border-color: var(--accent-green) !important; background: #e6ffec !important; font-weight: 800; }
-        .wrong { border-color: #ff5e5e !important; background: #ffe6e6 !important; font-weight: 800; }
-      `}</style>
     </div>
   );
 }
