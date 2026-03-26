@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   ];
 
   useEffect(() => {
-    const fetchAllData = async () => {
+    const fetchAllData = async (forceUpdateCurriculum = false) => {
        try {
          const storedUser = JSON.parse(localStorage.getItem("catUser"));
          if (!storedUser) { // If no user in local storage, redirect to home
@@ -133,15 +133,17 @@ export default function AdminDashboard() {
          if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
 
          // Setup curriculum structure
-         if (Array.isArray(gradesData) && gradesData.length > 0) {
-            const config = gradesData.map(g => ({
-              name: g.name,
-              sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
-            }));
-            setCurriculumConfig(config);
-          } else if (!curriculumConfig || curriculumConfig.length === 0) {
-            // Start with a clean slate for new Headmasters
-            setCurriculumConfig([]);
+         if (forceUpdateCurriculum) {
+           if (Array.isArray(gradesData) && gradesData.length > 0) {
+              const config = gradesData.map(g => ({
+                name: g.name,
+                sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
+              }));
+              setCurriculumConfig(config);
+            } else if (!curriculumConfig || curriculumConfig.length === 0) {
+              // Start with a clean slate for new Headmasters
+              setCurriculumConfig([]);
+            }
           }
                   
           // 2. Cascade School Freeze Check
@@ -185,10 +187,10 @@ export default function AdminDashboard() {
          setLoading(false); 
        }
     };
-    fetchAllData();
+    fetchAllData(true);
     
     // Auto-Sync every 15 seconds (keeps freeze status/users updated)
-    const syncInterval = setInterval(fetchAllData, 15000);
+    const syncInterval = setInterval(() => fetchAllData(false), 15000);
     return () => clearInterval(syncInterval);
   }, [router]);
 
@@ -1309,6 +1311,7 @@ export default function AdminDashboard() {
                   });
                   if (res.ok) {
                     alert("Educational structure synchronized! 🎉 Changes have been pushed to all registration forms.");
+                    fetchAllData(true); // Force sync to lock in the new state
                   } else {
                     alert("Sync failed! 😿");
                   }
