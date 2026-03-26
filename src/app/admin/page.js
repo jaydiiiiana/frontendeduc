@@ -405,88 +405,95 @@ export default function AdminDashboard() {
 
       <div className="container mx-auto px-6 pt-10 relative z-10">
         {/* Header */}
-        <header className="glass-panel !p-6 mb-10 flex flex-wrap items-center justify-between gap-6 shadow-xl border-white/40">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg ring-4 ring-white">
-                 {currentUser?.role === 'Headmaster' ? "👑" : "👩‍🏫"}
+        <header className="glass-panel p-4 md:p-6 mb-10 shadow-xl border-white/40">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg ring-4 ring-white shrink-0">
+                    {currentUser?.role === 'Headmaster' ? "👑" : "👩‍🏫"}
+                 </div>
+                 <div>
+                    <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                       {currentUser?.role} Dashboard 
+                       <button 
+                         title="Sync Data" 
+                         className="text-sm opacity-30 hover:opacity-100 transition-opacity"
+                         onClick={() => window.location.reload()}
+                       >
+                         🔄
+                       </button>
+                    </h1>
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[2px]">Academy Management System</p>
+                 </div>
               </div>
-              <div>
-                 <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                    {currentUser?.role} Dashboard 
+
+              <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest sm:hidden">Quick Actions</span>
+                  {currentUser?.role === 'Headmaster' && (
                     <button 
-                      title="Sync Data" 
-                      className="text-sm opacity-30 hover:opacity-100 transition-opacity"
-                      onClick={() => window.location.reload()}
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${activeTab === "setup" ? "bg-primary text-white" : "bg-white text-slate-400 hover:text-primary shadow-sm border border-slate-100"}`}
+                      onClick={() => setActiveTab("setup")}
+                      title="Section Setup"
                     >
-                      🔄
+                       ⚙️
                     </button>
-                 </h1>
-                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-[2px]">Academy Management System</p>
+                  )}
+                  <button 
+                    className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-primary shadow-sm border border-slate-100 rounded-xl transition-all"
+                    onClick={() => router.push("/dashboard")}
+                    title="Return Home"
+                  >
+                     🏠
+                  </button>
+                  <button 
+                    className="w-10 h-10 flex items-center justify-center bg-white text-red-400 hover:bg-red-50 shadow-sm border border-red-50 rounded-xl transition-all"
+                    onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}
+                    title="Logout"
+                  >
+                     🚪
+                  </button>
+                </div>
               </div>
            </div>
 
-           <nav className="flex items-center flex-wrap gap-2">
-              <div className="flex p-1 bg-slate-100/50 rounded-2xl backdrop-blur-sm border border-slate-200/50 overflow-x-auto no-scrollbar w-full md:w-auto">
-                {currentUser?.role === 'Headmaster' && (
-                  <>
-                    <button 
-                        className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === "users" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
-                        onClick={() => { setSelectedSubject(null); setActiveTab("users"); }}
-                    >
-                        Users
-                    </button>
-                    <button 
-                        className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === "bulletin" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
-                        onClick={() => { setSelectedSubject(null); setActiveTab("bulletin"); }}
-                    >
-                        Bulletin
-                    </button>
-                  </>
-                )}
-                <button 
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === "invites" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
-                    onClick={() => { setSelectedSubject(null); setActiveTab("invites"); }}
-                >
-                    Invites
-                </button>
-                <button 
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === "subjects" || activeTab === "subjectDetail" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
-                    onClick={() => { setSelectedSubject(null); setActiveTab("subjects"); }}
-                >
-                    Subjects
-                </button>
-                <button 
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === "add" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
-                    onClick={() => setActiveTab("add")}
-                >
-                    + Create
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2 ml-2">
-                {currentUser?.role === 'Headmaster' && (
+           <nav className="mt-6">
+              <div className="flex p-1 bg-slate-100/50 rounded-2xl backdrop-blur-sm border border-slate-200/50 overflow-x-auto no-scrollbar w-full">
+                <div className="flex items-center gap-1 min-w-max">
+                  {currentUser?.role === 'Headmaster' && (
+                    <>
+                      <button 
+                          className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "users" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                          onClick={() => { setSelectedSubject(null); setActiveTab("users"); }}
+                      >
+                          Users
+                      </button>
+                      <button 
+                          className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "bulletin" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                          onClick={() => { setSelectedSubject(null); setActiveTab("bulletin"); }}
+                      >
+                          Bulletin
+                      </button>
+                    </>
+                  )}
                   <button 
-                    className={`w-11 h-11 flex items-center justify-center rounded-2xl transition-all ${activeTab === "setup" ? "bg-primary text-white" : "bg-white text-slate-400 hover:text-primary shadow-sm border border-slate-100"}`}
-                    onClick={() => setActiveTab("setup")}
-                    title="Section Setup"
+                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "invites" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      onClick={() => { setSelectedSubject(null); setActiveTab("invites"); }}
                   >
-                     ⚙️
+                      Invites
                   </button>
-                )}
-                <button 
-                  className="w-11 h-11 flex items-center justify-center bg-white text-slate-400 hover:text-primary shadow-sm border border-slate-100 rounded-2xl transition-all"
-                  onClick={() => router.push("/dashboard")}
-                  title="Return Home"
-                >
-                   🏠
-                </button>
-                <button 
-                  className="w-11 h-11 flex items-center justify-center bg-red-50 text-red-400 hover:bg-red-500 hover:text-white shadow-sm border border-red-100 rounded-2xl transition-all"
-                  onClick={() => { localStorage.removeItem("catUser"); router.push("/"); }}
-                  title="Logout"
-                >
-                   🚪
-                </button>
+                  <button 
+                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "subjects" || activeTab === "subjectDetail" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      onClick={() => { setSelectedSubject(null); setActiveTab("subjects"); }}
+                  >
+                      Subjects
+                  </button>
+                  <button 
+                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "add" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      onClick={() => setActiveTab("add")}
+                  >
+                      + Create
+                  </button>
+                </div>
               </div>
            </nav>
         </header>
@@ -529,10 +536,10 @@ export default function AdminDashboard() {
 
           return (
             <div className="animate-fade-in">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                 <div>
-                    <h2 className="text-3xl font-black text-slate-800 tracking-tight">Academy Roster <span className="text-primary text-2xl font-bold ml-2">({filteredUsers.length})</span></h2>
-                    <p className="text-slate-500 font-medium">Manage your students and faculty members.</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 text-center md:text-left">
+                 <div className="px-2">
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">Academy Roster <span className="text-primary text-xl md:text-2xl font-bold ml-1 md:ml-2">({filteredUsers.length})</span></h2>
+                    <p className="text-sm md:text-base text-slate-500 font-medium">Manage your students and faculty members.</p>
                  </div>
                  <div className="relative group w-full md:min-w-[300px]">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">🔍</span>

@@ -65,9 +65,9 @@ export default function CreatorPanel() {
         if (Array.isArray(uData)) {
           const hmList = uData.filter(u => u.role === 'Headmaster');
           const hmWithStats = hmList.map(hm => {
-            const teachers = uData.filter(u => u.role === 'Teacher' && u.invited_by === hm.id);
-            const teacherIds = teachers.map(t => t.id);
-            const groupStudents = uData.filter(u => u.role === 'Student' && (u.invited_by === hm.id || teacherIds.includes(u.invited_by)));
+            const teachers = uData.filter(u => u.role === 'Teacher' && String(u.invited_by) === String(hm.id));
+            const teacherIds = teachers.map(t => String(t.id));
+            const groupStudents = uData.filter(u => u.role === 'Student' && (String(u.invited_by) === String(hm.id) || teacherIds.includes(String(u.invited_by))));
             
             return {
               ...hm,
