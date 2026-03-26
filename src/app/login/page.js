@@ -105,41 +105,41 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fcfaff] text-slate-800 relative overflow-x-hidden font-sans selection:bg-primary/20 flex flex-col">
+        <div className="min-h-screen bg-slate-50 text-slate-800 relative overflow-x-hidden font-sans selection:bg-primary/20 flex flex-col">
 
             {/* Animated Background Blobs */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/20 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
-                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-accent/20 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/40 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/10 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
+                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-primary-light/20 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
             </div>
 
             {/* Floating Elements (Stars/Paws) */}
-            <div className="absolute top-20 left-1/4 text-primary/30 text-4xl animate-float-slow select-none pointer-events-none">✨</div>
-            <div className="absolute bottom-32 left-1/3 text-accent/30 text-5xl animate-float-slower select-none pointer-events-none">🐾</div>
-            <div className="absolute top-1/3 right-1/4 text-secondary/30 text-3xl animate-float select-none pointer-events-none">🌟</div>
+            <div className="absolute top-20 left-1/4 text-primary/10 text-4xl animate-float-slow select-none pointer-events-none">✨</div>
+            <div className="absolute bottom-32 left-1/3 text-primary/10 text-5xl animate-float-slower select-none pointer-events-none">🎓</div>
+            <div className="absolute top-1/3 right-1/4 text-primary/10 text-3xl animate-float select-none pointer-events-none">🌟</div>
 
             {/* Back Button */}
             <button
-                className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-sm font-bold text-slate-500 hover:text-primary transition-all shadow-sm hover:shadow-md z-20 group"
+                className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white/80 hover:bg-white backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all shadow-sm hover:shadow-md z-20 group border border-slate-100"
                 onClick={() => router.push("/")}
             >
                 <span className="group-hover:-translate-x-1 transition-transform">←</span> Explore Academy
             </button>
 
             {/* Main Container */}
-            <div className="flex-1 flex items-center justify-center p-4 w-full z-10 relative mt-16">
+            <div className="flex-1 flex items-center justify-center p-4 w-full z-10 relative mt-12 md:mt-16">
                 <div className="premium-card cat-ears max-w-[480px] w-full animate-fade-in relative flex flex-col justify-center min-h-[500px]">
 
                 <div className="mb-8 text-center relative z-10">
-                    <div className="inline-block p-4 bg-primary-light rounded-full mb-4 shadow-inner border border-white">
-                        <span className="text-4xl">{mode === "login" ? "😸" : "🐾"}</span>
+                    <div className="inline-block p-4 bg-primary/5 rounded-2xl mb-4 shadow-inner border border-primary/10">
+                        <span className="text-4xl">{mode === "login" ? "🏛️" : "🎓"}</span>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
-                        {mode === "login" ? "Welcome back!" : "Join the Academy!"}
+                    <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight leading-tight">
+                        {mode === "login" ? "Academy Access" : "Join the Faculty"}
                     </h1>
-                    <p className="text-slate-500 mt-3 font-medium text-sm md:text-base px-4">
-                        {mode === "login" ? "Ready to continue your adventure?" : "Step into the ultimate learning room."}
+                    <p className="text-slate-500 mt-3 font-semibold text-sm px-4">
+                        {mode === "login" ? "Please authenticate to continue your studies." : "Step into the ultimate academic environment."}
                     </p>
                 </div>
 
@@ -183,12 +183,12 @@ export default function Home() {
                             </button>
 
                             <div className="relative flex items-center justify-center mt-6">
-                                <div className="absolute inset-x-0 h-px bg-slate-200"></div>
-                                <span className="relative bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">or join us</span>
+                                <div className="absolute inset-x-0 h-px bg-slate-100"></div>
+                                <span className="relative bg-white px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">or join us</span>
                             </div>
 
-                            <p className="text-center text-sm font-medium text-slate-500 mt-2">
-                                Not part of the Academy yet? <span className="text-primary cursor-pointer font-bold hover:text-primary-dark transition-colors" onClick={() => { setMode("register"); setError(""); }}>Apply Now</span>
+                            <p className="text-center text-xs font-bold text-slate-400 mt-2 uppercase tracking-wide">
+                                Not part of the Academy yet? <span className="text-primary cursor-pointer font-black hover:text-primary-dark transition-colors" onClick={() => { setMode("register"); setError(""); }}>Apply for Faculty</span>
                             </p>
                         </div>
                     ) : ( // TargetLintErrorIds: [react-jsx-nesting]
@@ -230,12 +230,12 @@ export default function Home() {
                                     </button>
 
                                     <div className="relative flex items-center justify-center mt-4">
-                                        <div className="absolute inset-x-0 h-px bg-slate-200"></div>
-                                        <span className="relative bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">already a member?</span>
+                                        <div className="absolute inset-x-0 h-px bg-slate-100"></div>
+                                        <span className="relative bg-white px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">already a member?</span>
                                     </div>
 
-                                    <p className="text-center text-sm font-medium text-slate-500 mt-2">
-                                        Have an account? <span className="text-primary cursor-pointer font-bold hover:text-primary-dark transition-colors" onClick={() => { setMode("login"); setError(""); }}>Log In Here</span>
+                                    <p className="text-center text-xs font-bold text-slate-400 mt-2 uppercase tracking-wide">
+                                        Have an account? <span className="text-primary cursor-pointer font-black hover:text-primary-dark transition-colors" onClick={() => { setMode("login"); setError(""); }}>Log In Here</span>
                                     </p>
                                 </div>
                             ) : (

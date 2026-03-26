@@ -114,36 +114,20 @@ export default function AdminDashboard() {
         }
       }
 
-      const [uRes, cRes, aRes, vRes, gRes] = await Promise.all([
+      const [uRes, cRes, aRes, vRes] = await Promise.all([
         fetch("/api/users"),
         fetch(`/api/curriculum?userId=${storedUser.id}&role=${storedUser.role}`),
         fetch("/api/announcements"),
-        fetch(`/api/invites?userId=${storedUser.id}`),
-        fetch(`/api/admin/grades?headmasterId=${storedUser.id}`)
+        fetch(`/api/invites?userId=${storedUser.id}`)
       ]);
       
       const userData = await uRes.json();
       const currData = await cRes.json();
       const annData = await aRes.json();
       const invData = await vRes.json();
-      const gradesData = await gRes.json();
       
       if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
 
-      // Setup curriculum structure
-      if (forceUpdateCurriculum) {
-        if (Array.isArray(gradesData) && gradesData.length > 0) {
-          const config = gradesData.map(g => ({
-            name: g.name,
-            sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
-          }));
-          setCurriculumConfig(config);
-        } else {
-          // If we are forcing an update and there's no data, we only reset if it's currently empty
-          setCurriculumConfig(prev => (prev.length === 0 ? [] : prev));
-        }
-      }
-              
       // 3. School Isolation & Status Checks
       if (activeUser.role !== 'Creator') {
         if (Array.isArray(userData)) {
@@ -159,6 +143,23 @@ export default function AdminDashboard() {
 
           if (myHeadmaster && myHeadmaster.id) {
             headmasterIdRef.current = myHeadmaster.id;
+            
+            // NOW fetch the Grades/Sections for the resolved Headmaster
+            const gRes = await fetch(`/api/admin/grades?headmasterId=${myHeadmaster.id}`);
+            const gradesData = await gRes.json();
+            
+            if (forceUpdateCurriculum) {
+              if (Array.isArray(gradesData) && gradesData.length > 0) {
+                const config = gradesData.map(g => ({
+                  name: g.name,
+                  sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
+                }));
+                setCurriculumConfig(config);
+              } else {
+                setCurriculumConfig(prev => (prev.length === 0 ? [] : prev));
+              }
+            }
+
             if (myHeadmaster.is_frozen) {
               router.push("/");
               localStorage.removeItem("catUser");
@@ -433,33 +434,33 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans pb-24">
+    <div className="min-h-screen bg-paper relative overflow-x-hidden font-sans pb-24">
       {/* Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-indigo-100 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/5 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-accent/5 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
       </div>
 
-      <div className="container mx-auto px-6 pt-10 relative z-10">
+      <div className="container mx-auto px-4 md:px-10 pt-8 md:pt-12 relative z-10">
         {/* Header */}
-        <header className="glass-panel p-4 md:p-6 mb-10 shadow-xl border-white/40">
-           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg ring-4 ring-white shrink-0">
-                    {currentUser?.role === 'Headmaster' ? "👑" : "👩‍🏫"}
+        <header className="premium-card !p-6 md:!p-8 mb-10 border-primary/10 shadow-premium">
+           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="flex items-center gap-5">
+                 <div className="w-14 h-14 md:w-16 md:h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-3xl shadow-xl ring-4 ring-white shrink-0 group hover:rotate-6 transition-transform">
+                    {currentUser?.role === 'Headmaster' ? "🏛️" : "👩‍🏫"}
                  </div>
                  <div>
-                    <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                       {currentUser?.role} Dashboard 
+                    <h1 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+                       {currentUser?.role} Faculty
                        <button 
-                         title="Sync Data" 
-                         className="text-sm opacity-30 hover:opacity-100 transition-opacity"
+                         title="Synchronize Academy Data" 
+                         className="w-8 h-8 rounded-lg bg-slate-50 text-[10px] flex items-center justify-center opacity-40 hover:opacity-100 hover:bg-white hover:shadow-sm transition-all border border-slate-100"
                          onClick={() => window.location.reload()}
                        >
                          🔄
                        </button>
                     </h1>
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[2px]">Academy Management System</p>
+                    <p className="text-[10px] font-black uppercase text-primary tracking-[3px] opacity-80">Cat Academy Management System</p>
                  </div>
               </div>
 
@@ -499,13 +500,13 @@ export default function AdminDashboard() {
                   {currentUser?.role === 'Headmaster' && (
                     <>
                       <button 
-                          className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "users" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                          className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "users" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
                           onClick={() => { setSelectedSubject(null); setActiveTab("users"); }}
                       >
-                          Users
+                          Roster
                       </button>
                       <button 
-                          className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "bulletin" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                          className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "bulletin" ? "bg-white text-primary shadow-sm active:scale-95" : "text-slate-500 hover:text-primary"}`}
                           onClick={() => { setSelectedSubject(null); setActiveTab("bulletin"); }}
                       >
                           Bulletin
@@ -513,19 +514,27 @@ export default function AdminDashboard() {
                     </>
                   )}
                   <button 
-                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "invites" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "invites" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
                       onClick={() => { setSelectedSubject(null); setActiveTab("invites"); }}
                   >
-                      Invites
+                      Tokens
                   </button>
                   <button 
-                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "subjects" || activeTab === "subjectDetail" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "subjects" || activeTab === "subjectDetail" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
                       onClick={() => { setSelectedSubject(null); setActiveTab("subjects"); }}
                   >
                       Subjects
                   </button>
+                  {currentUser?.role === 'Headmaster' && (
+                    <button 
+                        className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "setup" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
+                        onClick={() => { setSelectedSubject(null); setActiveTab("setup"); }}
+                    >
+                        Setup
+                    </button>
+                  )}
                   <button 
-                      className={`px-5 py-2 rounded-xl font-bold text-xs md:text-sm transition-all ${activeTab === "add" ? "bg-white text-primary shadow-md active:scale-95" : "text-slate-500 hover:text-slate-700"}`}
+                      className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "add" ? "bg-accent text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-accent"}`}
                       onClick={() => setActiveTab("add")}
                   >
                       + Create
@@ -601,19 +610,19 @@ export default function AdminDashboard() {
                   return (
                     <div key={catKey} className="group/section">
                       <div className="flex items-center gap-4 mb-6">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-sm ${isAdmin ? 'bg-amber-100 text-amber-600' : isTeacher ? 'bg-indigo-100 text-indigo-600' : 'bg-primary-light/30 text-primary'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-sm ${isAdmin ? 'bg-amber-100 text-amber-600' : isTeacher ? 'bg-primary/10 text-primary' : 'bg-primary/5 text-primary'}`}>
                            {icon}
                         </div>
                         <h3 className="text-xl font-black text-slate-700 tracking-tight capitalize">{title}</h3>
-                        <div className="flex-1 h-px bg-slate-200 group-hover/section:bg-primary-light/50 transition-colors"></div>
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{catUsers.length} MEMBERS</span>
+                        <div className="flex-1 h-px bg-slate-100 group-hover/section:bg-primary/20 transition-colors"></div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{catUsers.length} OFFICIALS</span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {catUsers.map((u) => (
-                          <div key={u.id} className="premium-card !p-5 group/user hover:-translate-y-1 transition-all border-slate-100 hover:border-primary-light hover:shadow-xl relative overflow-hidden">
+                           <div key={u.id} className="premium-card !p-5 group/user hover:-translate-y-1 transition-all border-slate-100 hover:border-primary/30 hover:shadow-premium relative overflow-hidden">
                             <div className="flex items-center gap-4 relative z-10">
-                              <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center font-black text-xl shadow-inner transition-colors relative ${u.role === "Headmaster" ? "bg-amber-50 text-amber-600" : u.role === "Teacher" ? "bg-indigo-50 text-indigo-600" : "bg-slate-50 text-slate-400 group-hover/user:bg-primary-light/10 group-hover/user:text-primary"}`}>
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner transition-colors relative ${u.role === "Headmaster" ? "bg-amber-50 text-amber-600" : u.role === "Teacher" ? "bg-primary/5 text-primary" : "bg-slate-50 text-slate-400 group-hover/user:bg-primary/10 group-hover/user:text-primary"}`}>
                                 {(u.name || "?")[0].toUpperCase()}
                                 {u.role === 'Student' && u.is_verified === false && (
                                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px]" title="Verification Pending">⚠️</div>
@@ -655,21 +664,21 @@ export default function AdminDashboard() {
                                 ) : (
                                   <div className="flex items-center gap-2 w-full">
                                     <select 
-                                      className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:ring-2 ring-primary-light/50 transition-all"
+                                      className="text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-2 py-1.5 outline-none focus:ring-2 ring-primary/20 transition-all font-sans uppercase tracking-widest"
                                       value={u.role || "Student"}
                                       disabled={roleUpdating === u.id}
                                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
                                     >
-                                      <option value="Student">🎒 Student</option>
-                                      <option value="Teacher">📖 Teacher</option>
+                                      <option value="Student">Scholar</option>
+                                      <option value="Teacher">Faculty</option>
                                     </select>
                                     
                                     {u.role === 'Student' && u.is_verified === false && (
                                        <button 
-                                         className="flex-1 py-1.5 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-green-500 transition-colors shadow-sm active:scale-95"
+                                         className="flex-1 py-1.5 bg-primary text-white text-[9px] font-black uppercase tracking-[2px] rounded-lg hover:bg-primary-dark transition-all shadow-sm active:scale-95"
                                          onClick={() => handleVerify(u.id, true)}
                                        >
-                                         Confirm Room ✅
+                                         Authorize ✅
                                        </button>
                                     )}
                                     
@@ -698,12 +707,12 @@ export default function AdminDashboard() {
                 <p className="text-slate-500 font-medium">Broadcast news to your students and teachers.</p>
              </div>
              
-             <div className="premium-card shadow-2xl overflow-hidden mb-12 border-none">
-                <div className="bg-gradient-to-r from-amber-400 to-amber-500 p-6 flex items-center gap-4 text-white">
-                   <div className="w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-md flex items-center justify-center text-2xl">✍️</div>
+             <div className="premium-card shadow-premium overflow-hidden mb-12 border-none">
+                <div className="bg-primary p-6 md:p-8 flex items-center gap-5 text-white">
+                   <div className="w-14 h-14 bg-white/10 rounded-2xl backdrop-blur-md flex items-center justify-center text-3xl border border-white/10 shadow-lg">📜</div>
                    <div>
-                      <h4 className="font-black tracking-tight leading-none mb-1">New Official Proclamation</h4>
-                      <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Publically Visible Message</p>
+                      <h4 className="text-xl font-black tracking-tight leading-none mb-1">Academy Proclamation</h4>
+                      <p className="text-[10px] font-black opacity-80 uppercase tracking-[3px]">Official Faculty News</p>
                    </div>
                 </div>
                 <div className="p-8 space-y-6">
@@ -730,8 +739,8 @@ export default function AdminDashboard() {
                        </select>
                     </div>
                     <div className="w-full md:w-auto md:self-end">
-                       <button className="btn-primary !py-4 px-10 shadow-xl shadow-primary/20 flex items-center gap-3 w-full" onClick={handlePostAnnouncement}>
-                          Post Proclamation 🚀
+                       <button className="btn-primary !py-4 px-12 shadow-xl shadow-primary/20 flex items-center justify-center gap-3 w-full font-black text-[10px] uppercase tracking-widest" onClick={handlePostAnnouncement}>
+                          Authorize Broadcast 🚀
                        </button>
                     </div>
                   </div>

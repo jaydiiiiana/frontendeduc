@@ -201,40 +201,40 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans pb-24">
+    <div className="min-h-screen bg-paper relative overflow-x-hidden font-sans pb-24">
       {/* Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary-light/40 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-secondary/10 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/5 mix-blend-multiply filter blur-[100px] blob-shape opacity-60"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-[500px] h-[500px] bg-accent/5 mix-blend-multiply filter blur-[80px] blob-shape animation-delay-2000 opacity-50"></div>
       </div>
       
-      <div className="container mx-auto px-6 pt-10 relative z-10">
-        <header className="premium-card !p-10 !bg-gradient-to-br from-primary to-accent text-white mb-10 overflow-hidden relative shadow-2xl">
-          <div className="absolute right-[-20px] top-[-20px] text-[15rem] opacity-10 pointer-events-none select-none rotate-12">🐱</div>
+      <div className="container mx-auto px-4 md:px-10 pt-8 md:pt-12 relative z-10">
+        <header className="premium-card !p-8 md:!p-12 bg-primary text-white mb-10 overflow-hidden relative shadow-premium border-none">
+          <div className="absolute right-[-20px] top-[-20px] text-[15rem] opacity-10 pointer-events-none select-none rotate-12">🎓</div>
           
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl md:text-5xl font-black drop-shadow-sm">Hi, {user.name}!</h1>
+              <div className="flex items-center gap-4 mb-3">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tight">Salutations, {user.nickname || user.name}!</h1>
                 <button 
-                  title="Sync Data" 
-                  className="p-2 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-md transition-all active:scale-95 text-xl"
+                  title="Synchronize Academy Data" 
+                  className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all active:scale-95 text-xl flex items-center justify-center border border-white/10"
                   onClick={() => window.location.reload()}
                 >
                   🔄
                 </button>
               </div>
-              <p className="text-lg md:text-xl font-medium opacity-90 drop-shadow-sm">Welcome back to your <strong className="font-extrabold">{user.grade}</strong> room!</p>
+              <p className="text-lg md:text-xl font-medium opacity-90">Academic Session: <strong className="font-black text-accent">{user.grade}</strong></p>
             </div>
             
             <div className="flex items-center gap-4">
                <button 
                   onClick={() => setShowAnnouncements(true)}
-                  className="w-14 h-14 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-2xl flex items-center justify-center relative transition-all active:scale-95 group"
+                  className="w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center relative transition-all active:scale-95 group border border-white/10"
                >
                   <span className="text-2xl group-hover:scale-110 transition-transform">📣</span>
                   {announcements.length > 0 && (
-                    <div className="absolute -top-2 -right-2 bg-white text-primary rounded-full w-7 h-7 flex items-center justify-center font-black text-xs border-2 border-primary shadow-lg animate-bounce">
+                    <div className="absolute -top-2 -right-2 bg-accent text-white rounded-full w-7 h-7 flex items-center justify-center font-black text-[10px] border-2 border-primary shadow-lg animate-bounce">
                         {announcements.length}
                     </div>
                   )}
@@ -242,37 +242,37 @@ export default function Dashboard() {
                
                <button 
                   onClick={() => setShowNotifications(true)}
-                  className="w-14 h-14 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-2xl flex items-center justify-center relative transition-all active:scale-95 group"
+                  className="w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center relative transition-all active:scale-95 group border border-white/10"
                >
                   <span className="text-2xl group-hover:scale-110 transition-transform">🔔</span>
                   {notifications.length > 0 && (
-                    <div className="absolute -top-2 -right-2 bg-red-400 text-white rounded-full w-7 h-7 flex items-center justify-center font-black text-xs border-2 border-white shadow-lg">
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center font-black text-[10px] border-2 border-primary shadow-lg">
                         {notifications.length}
                     </div>
                   )}
                </button>
 
-               <div className="bg-white/20 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 text-center flex flex-col items-center">
-                  <span className="text-[10px] font-black uppercase tracking-[3px] opacity-80 mb-0.5">Kitten Level</span>
+               <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-center flex flex-col items-center">
+                  <span className="text-[10px] font-black uppercase tracking-[3px] opacity-80 mb-0.5">Scholar Level</span>
                   <span className="text-3xl font-black">{user.level}</span>
                </div>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4 relative z-10 pt-8 border-t border-white/20">
-             <div className="flex-1 w-full md:w-auto glass-panel !bg-white/20 backdrop-blur-xl border-white/30 flex items-center p-1.5 rounded-full shadow-inner ring-1 ring-white/10 group focus-within:ring-white/40 transition-all">
+          <div className="mt-8 flex flex-wrap items-center gap-4 relative z-10 pt-8 border-t border-white/10">
+             <div className="flex-1 w-full md:w-auto glass-panel !bg-white/10 backdrop-blur-xl border-white/10 flex items-center p-2 rounded-2xl shadow-inner ring-1 ring-white/10 group focus-within:ring-white/40 transition-all">
                 <input 
                   type="text" 
-                  placeholder="Have an invite code? ✨" 
-                  className="flex-1 w-0 bg-transparent border-none text-white placeholder:text-white/60 px-4 md:px-6 font-bold outline-none uppercase tracking-widest text-xs md:text-sm" 
+                  placeholder="Insert Class Access Token ✨" 
+                  className="flex-1 w-0 bg-transparent border-none text-white placeholder:text-white/60 px-4 md:px-6 font-bold outline-none uppercase tracking-[2px] text-xs md:text-sm" 
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 />
                 <button 
-                  className="bg-white text-primary px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-xs md:text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-lg active:scale-95 shrink-0"
+                  className="bg-accent text-white px-6 md:px-10 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent-dark transition-all shadow-lg active:scale-95 shrink-0"
                   onClick={handleJoinSubject}
                 >
-                  Join 🏫
+                  Authorize 🏫
                 </button>
              </div>
              
@@ -366,15 +366,15 @@ export default function Dashboard() {
                       <span className="text-xs font-bold text-slate-400">{subj.lessons?.length || 0} Lessons</span>
                   </div>
 
-                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-6 relative border border-slate-50">
+                  <div className="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden mb-6 relative border border-slate-100">
                       <div 
-                        className={`h-full transition-all duration-1000 ease-out rounded-full ${pct === 100 ? 'bg-green-400' : (isPub ? 'bg-yellow-400' : 'bg-primary')}`}
+                        className={`h-full transition-all duration-1000 ease-out rounded-full ${pct === 100 ? 'bg-green-400' : (isPub ? 'bg-accent' : 'bg-primary')}`}
                         style={{ width: `${pct}%` }}
                       ></div>
                   </div>
 
-                  <button className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${isPub ? 'bg-yellow-400/10 text-yellow-600 hover:bg-yellow-400 hover:text-white' : 'btn-secondary shadow-none !border-slate-100'}`}>
-                    {pct === 100 ? "Mastered! ✨" : (isPub ? "Enter Classroom 👑" : "Start Learning 🐾")}
+                  <button className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${isPub ? 'bg-accent/10 text-accent hover:bg-accent hover:text-white' : 'btn-secondary shadow-sm !border-slate-100/50 hover:!border-primary/30 hover:!text-primary'}`}>
+                    {pct === 100 ? "Level Cleared ✨" : (isPub ? "Enter Lecture Hall 🏛️" : "Start Learning 🐾")}
                   </button>
                 </div>
               );

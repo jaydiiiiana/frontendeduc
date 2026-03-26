@@ -99,15 +99,15 @@ export default function ScholarClassroomPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FDF8F6] relative overflow-x-hidden">
+    <div className="min-h-screen bg-paper relative overflow-x-hidden">
       {/* Background Orbs */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] bg-primary-light/10 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-[20%] right-[10%] w-[35rem] h-[35rem] bg-accent-blue/10 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] bg-primary/5 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-[20%] right-[10%] w-[35rem] h-[35rem] bg-accent/5 rounded-full blur-[100px] animate-pulse"></div>
       </div>
 
       {/* Modern Header Banner */}
-      <header className="relative bg-white/60 backdrop-blur-xl border-b border-slate-100 px-6 py-12 md:py-20 animate-fade-in overflow-hidden">
+      <header className="relative bg-white/40 backdrop-blur-xl border-b border-slate-200/50 px-6 py-12 md:py-16 animate-fade-in overflow-hidden">
         <div className="container mx-auto max-w-6xl relative z-10">
            <button 
              onClick={() => router.push("/dashboard")}
@@ -131,12 +131,12 @@ export default function ScholarClassroomPage() {
               </div>
 
               {isTeacher && (
-                <div className="glass-panel !p-6 !bg-primary/5 border-primary/10 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                <div className="premium-card !p-6 bg-primary/5 border-primary/10 rounded-3xl shadow-sm relative overflow-hidden group">
                   <div className="relative z-10">
-                     <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-2">Subject Invite Token</p>
+                     <p className="text-[10px] font-black text-primary/60 uppercase tracking-[3px] mb-2">Access Token</p>
                      <p className="text-4xl font-black text-primary font-mono tracking-[0.2em] group-hover:scale-105 transition-transform duration-500">{subject.code}</p>
                   </div>
-                  <div className="absolute -right-8 -bottom-8 text-9xl opacity-[0.03] group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700 pointer-events-none">📜</div>
+                  <div className="absolute -right-8 -bottom-8 text-9xl opacity-[0.03] group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700 pointer-events-none">🏛️</div>
                 </div>
               )}
            </div>

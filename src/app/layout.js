@@ -1,14 +1,9 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-outfit",
 });
 
 export const metadata = {
@@ -27,7 +22,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#ff85b3",
+  themeColor: "#1e40af",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -36,7 +31,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={outfit.variable}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/cat-hat-logo.png" type="image/png" />

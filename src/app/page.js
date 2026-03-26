@@ -74,44 +74,44 @@ export default function LandingPage() {
    };
 
    return (
-      <div className="min-h-screen overflow-x-hidden bg-slate-50 relative font-sans">
+      <div className="min-h-screen overflow-x-hidden bg-slate-50 relative font-sans text-slate-800">
          {/* Animated Background Blobs */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/60 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-light/40 mix-blend-multiply filter blur-[80px] blob-shape opacity-70"></div>
             <div className="absolute top-[40%] right-[-5%] w-[600px] h-[600px] bg-secondary/10 mix-blend-multiply filter blur-[100px] blob-shape animation-delay-2000 opacity-60"></div>
-            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-accent/15 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
+            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-primary-light/20 mix-blend-multiply filter blur-[60px] blob-shape animation-delay-4000 opacity-50"></div>
          </div>
 
          {/* Navigation */}
-         <nav className="fixed w-full top-0 px-6 md:px-12 py-4 flex justify-between items-center z-50 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm transition-all">
-            <div className="text-xl md:text-2xl font-black flex items-center gap-3 text-slate-800">
-               <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+         <nav className="fixed w-full top-0 px-6 md:px-12 py-4 flex justify-between items-center z-50 bg-white/80 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm transition-all">
+            <div className="text-xl md:text-2xl font-black flex items-center gap-3 text-primary">
+               <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-white">
                   <img src="/cat-hat-logo.png" alt="Cat Academy" className="w-full h-full object-cover" />
                </div>
                Cat Academy
             </div>
             <div className="flex gap-2 md:gap-4 items-center">
-               <button className="hidden md:block px-6 py-2.5 rounded-full font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors" onClick={() => router.push("/login")}>Login</button>
-               <button className="btn-primary !px-6 !py-2.5 !text-sm md:!text-base flex items-center gap-2" onClick={() => router.push("/login")}>
-                  Join Now <span className="text-lg">🎓</span>
+               <button className="hidden md:block px-6 py-2.5 rounded-xl font-bold text-slate-500 hover:text-primary hover:bg-slate-50 transition-colors" onClick={() => router.push("/login")}>Login</button>
+               <button className="btn-primary !px-6 !py-2.5 !text-xs md:!text-base flex items-center gap-2" onClick={() => router.push("/login")}>
+                  Join Now <span className="text-base md:text-lg">🎓</span>
                </button>
             </div>
          </nav>
 
          {/* Hero Section */}
-         <header className="relative z-10 container mx-auto px-6 pt-32 md:pt-48 pb-24 flex flex-col items-center min-h-[85vh] text-center max-w-5xl">
+         <header className="relative z-10 container mx-auto px-6 pt-32 md:pt-48 pb-20 flex flex-col items-center min-h-[85vh] text-center max-w-5xl">
             <div className="animate-fade-in flex flex-col items-center w-full">
-               <div className="inline-flex items-center gap-2 bg-primary-light/80 text-primary-dark px-6 py-3 rounded-full font-extrabold text-sm md:text-base mb-8 shadow-sm border border-primary/20 backdrop-blur-sm animate-float">
-                  ✨ Welcome to the Future of Learning
+               <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-6 py-3 rounded-full font-extrabold text-xs md:text-sm mb-8 shadow-sm border border-primary/10 backdrop-blur-sm animate-float">
+                  ✨ Welcome to the Premier Learning Academy
                </div>
-               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] mb-8 text-slate-800">
-                  Learning is Better with a <br className="hidden md:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary">
-                     Furry Friend! 🌸
+               <h1 className="text-4xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] mb-8 text-slate-800">
+                  Excellence Begins with a <br className="hidden md:block" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">
+                     Curious Spirit. 🎓
                   </span>
                </h1>
-               <p className="text-lg md:text-2xl text-slate-500 font-medium mb-12 max-w-3xl leading-relaxed">
-                  The most adorable way to master Math, Science, and English. Join thousands of kittens worldwide on a quest for knowledge and leveling up.
+               <p className="text-base md:text-2xl text-slate-500 font-medium mb-12 max-w-3xl leading-relaxed">
+                  The most professional way to master Math, Science, and English. Join a global community dedicated to academic excellence and feline-fueled success.
                </p>
                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
                   <button className="btn-primary !py-5 !px-10 text-lg flex items-center justify-center gap-3 w-full sm:w-auto" onClick={() => router.push("/login")}>
@@ -138,20 +138,20 @@ export default function LandingPage() {
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300">
-                     <div className="text-6xl mb-6 inline-block bg-primary-light/50 p-6 rounded-[2rem] shadow-inner">🎮</div>
-                     <h3 className="text-2xl font-black mb-4 text-slate-800">Gamified Learning</h3>
-                     <p className="text-slate-500 font-medium leading-relaxed">Every quiz is an adventure! Earn EXP, collect badges, and level up as you master your subjects.</p>
+                  <div className="premium-card text-center hover:-translate-y-2 group transition-all duration-300">
+                     <div className="text-6xl mb-6 inline-block bg-primary/5 p-6 rounded-[2rem] shadow-inner group-hover:bg-primary/10 group-hover:scale-110 transition-all">🎮</div>
+                     <h3 className="text-2xl font-black mb-4 text-slate-800">Academic Ranking</h3>
+                     <p className="text-slate-500 font-medium leading-relaxed">Every quiz is a milestone! Earn EXP, collect honors, and climb the leaderboard as you master your subjects.</p>
                   </div>
-                  <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-200">
-                     <div className="text-6xl mb-6 inline-block bg-accent/10 p-6 rounded-[2rem] shadow-inner">📊</div>
-                     <h3 className="text-2xl font-black mb-4 text-slate-800">Admin Tools</h3>
-                     <p className="text-slate-500 font-medium leading-relaxed">Teachers can create custom tests and track every student's progress with real-time analytics.</p>
+                  <div className="premium-card text-center hover:-translate-y-2 group transition-all duration-300">
+                     <div className="text-6xl mb-6 inline-block bg-accent/5 p-6 rounded-[2rem] shadow-inner group-hover:bg-accent/10 group-hover:scale-110 transition-all">📊</div>
+                     <h3 className="text-2xl font-black mb-4 text-slate-800">Faculty Insights</h3>
+                     <p className="text-slate-500 font-medium leading-relaxed">Faculty can create rigorous assessments and track student performance with real-time academic analytics.</p>
                   </div>
-                  <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-300">
-                     <div className="text-6xl mb-6 inline-block bg-secondary/10 p-6 rounded-[2rem] shadow-inner">😽</div>
-                     <h3 className="text-2xl font-black mb-4 text-slate-800">Friendly Support</h3>
-                     <p className="text-slate-500 font-medium leading-relaxed">Our furry community is here to help you through every challenge. Learning has never been this supportive!</p>
+                  <div className="premium-card text-center hover:-translate-y-2 group transition-all duration-300">
+                     <div className="text-6xl mb-6 inline-block bg-secondary/5 p-6 rounded-[2rem] shadow-inner group-hover:bg-secondary/10 group-hover:scale-110 transition-all">🏫</div>
+                     <h3 className="text-2xl font-black mb-4 text-slate-800">Global Campus</h3>
+                     <p className="text-slate-500 font-medium leading-relaxed">Our scholarly community is here to support you. Connect with peers and educators in an elite learning environment.</p>
                   </div>
                </div>
             </div>
@@ -159,20 +159,20 @@ export default function LandingPage() {
 
          {/* Stats Section */}
          <section className="relative z-10 container mx-auto py-24 px-6 max-w-5xl">
-            <div className="glass-card flex flex-col md:flex-row justify-between gap-12 text-center py-12 px-8">
+            <div className="glass-card flex flex-col md:flex-row justify-between gap-12 text-center py-12 px-8 bg-white border-2 border-primary/5">
                <div className="flex-1">
                   <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{totalSchools}</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Register School <span className="ml-1">🏫</span></p>
+                  <p className="text-sm font-black text-slate-400 uppercase tracking-[2px]">Affiliated Schools <span className="ml-1">🏫</span></p>
                </div>
-               <div className="hidden md:block w-px bg-slate-200"></div>
+               <div className="hidden md:block w-px bg-slate-100"></div>
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-accent-blue mb-2 drop-shadow-sm">{totalUsers}</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Cat User <span className="ml-1">😸</span></p>
+                  <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{totalUsers}</h2>
+                  <p className="text-sm font-black text-slate-400 uppercase tracking-[2px]">Scholar Kittens <span className="ml-1">😸</span></p>
                </div>
-               <div className="hidden md:block w-px bg-slate-200"></div>
+               <div className="hidden md:block w-px bg-slate-100"></div>
                <div className="flex-1">
-                  <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{successRate}%</h2>
-                  <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Success Rate <span className="ml-1">🎓</span></p>
+                  <h2 className="text-6xl font-black text-primary mb-2 drop-shadow-sm">{successRate}%</h2>
+                  <p className="text-sm font-black text-slate-400 uppercase tracking-[2px]">Passing Grade <span className="ml-1">🎓</span></p>
                </div>
             </div>
          </section>
@@ -187,22 +187,22 @@ export default function LandingPage() {
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                   {[
                      { name: 'Trial', duration: '1 Month', price: 'Free', color: 'primary' },
-                     { name: 'Standard', duration: '3 Months', price: '₱250', color: 'accent-blue' },
-                     { name: 'Premium', duration: '6 Months', price: '₱450', color: 'secondary' },
-                     { name: 'Annual', duration: '1 Year', price: '₱800', color: 'green-500', popular: true }
+                     { name: 'Standard', duration: '3 Months', price: '₱250', color: 'primary' },
+                     { name: 'Premium', duration: '6 Months', price: '₱450', color: 'primary' },
+                     { name: 'Annual', duration: '1 Year', price: '₱800', color: 'primary', popular: true }
                   ].map((p, i) => (
-                     <div key={p.name} className={`premium-card relative flex flex-col items-center p-8 border-2 ${p.popular ? 'border-primary' : 'border-transparent'}`}>
-                        {p.popular && <span className="absolute -top-4 bg-primary text-white px-4 py-1 rounded-full text-xs font-black uppercase">Most Popular</span>}
-                        <h3 className="text-2xl font-black mb-2">{p.name}</h3>
-                        <p className="text-slate-400 font-bold uppercase tracking-tighter text-sm mb-6">{p.duration}</p>
-                        <div className="text-4xl font-black text-slate-800 mb-8">{p.price}</div>
-                        <ul className="text-slate-500 text-sm font-medium space-y-3 mb-8 text-center">
-                           <li>✨ Full Access</li>
-                           <li>🎮 Gamified Quizzes</li>
-                           <li>📊 Progress Tracking</li>
+                     <div key={p.name} className={`premium-card relative flex flex-col items-center p-8 border-2 ${p.popular ? 'border-primary/20 bg-primary/[0.02]' : 'border-transparent'}`}>
+                        {p.popular && <span className="absolute -top-4 bg-primary text-white px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">Preferred Choice</span>}
+                        <h3 className="text-2xl font-black mb-2 text-slate-800">{p.name}</h3>
+                        <p className="text-slate-400 font-extrabold uppercase tracking-widest text-[10px] mb-6">{p.duration}</p>
+                        <div className="text-4xl font-black text-primary mb-8">{p.price}</div>
+                        <ul className="text-slate-500 text-sm font-bold space-y-3 mb-8 text-center opacity-80">
+                           <li className="flex items-center gap-2 justify-center">✅ Full Roster Access</li>
+                           <li className="flex items-center gap-2 justify-center">✅ Advanced Analytics</li>
+                           <li className="flex items-center gap-2 justify-center">✅ Official Certification</li>
                         </ul>
-                        <button className={`w-full py-4 rounded-2xl font-black transition-all ${p.popular ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                           Choose {p.name}
+                        <button className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${p.popular ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-500 hover:bg-primary/10 hover:text-primary'}`}>
+                           Enroll Now
                         </button>
                      </div>
                   ))}
@@ -214,21 +214,21 @@ export default function LandingPage() {
          <section id="success-stories" className="relative z-10 py-24 px-6 bg-white">
             <div className="container mx-auto max-w-4xl">
                <div className="text-center mb-16">
-                  <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-800">Success Stories 🐾</h2>
-                  <p className="text-xl text-slate-500 font-medium mb-4">Read what our amazing community has to say.</p>
+                  <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-800">Alumni Success 🎓</h2>
+                  <p className="text-xl text-slate-500 font-medium mb-4">Voices from our esteemed academic community.</p>
                   
                   {/* Rating Display */}
                   <div className="flex flex-col items-center gap-2">
-                     <div className="flex gap-1 text-3xl text-yellow-400">
+                     <div className="flex gap-1 text-3xl text-accent">
                         {[1, 2, 3, 4, 5].map(s => (
-                           <span key={s} className={s <= ratingData.average ? "opacity-100" : "opacity-30"}>⭐</span>
+                           <span key={s} className={s <= ratingData.average ? "opacity-100" : "opacity-30"}>★</span>
                         ))}
                      </div>
-                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{ratingData.average} / 5 ({ratingData.count} ratings)</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{ratingData.average} / 5 ({ratingData.count} Scholar Ratings)</p>
                      
                      {user && (
-                        <div className="mt-4 flex flex-col items-center">
-                           <p className="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider">Rate the website:</p>
+                        <div className="mt-4 flex flex-col items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                           <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-wider">Submit Your Academic Rating:</p>
                            <div className="flex gap-2">
                               {[1, 2, 3, 4, 5].map(s => (
                                  <button 
@@ -243,9 +243,9 @@ export default function LandingPage() {
                                        const d = await res.json();
                                        setRatingData(d);
                                     }}
-                                    className="text-2xl hover:scale-110 transition-transform"
+                                    className="text-2xl hover:scale-125 transition-transform origin-center"
                                  >
-                                    ⭐
+                                    ★
                                  </button>
                               ))}
                            </div>
@@ -254,11 +254,11 @@ export default function LandingPage() {
                   </div>
                </div>
 
-               {/* Post Story (Headmaster only) */}
+               {/* Post Story (Faculty only) */}
                {user?.role === 'Headmaster' && (
-                  <div className="glass-panel !p-8 mb-12 border-primary/20">
+                  <div className="premium-card mb-12 border-primary/20 bg-primary/[0.02]">
                      <h4 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
-                        Share a Success Story <span className="text-2xl">✍️</span>
+                        Document a Success Story <span className="text-2xl">📖</span>
                      </h4>
                      <textarea 
                         className="w-full p-4 rounded-2xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-slate-600 mb-4"
