@@ -17,6 +17,8 @@ export default function LandingPage() {
    const [enrollmentForm, setEnrollmentForm] = useState({
       schoolName: "",
       contactPerson: "",
+      contactEmail: "",
+      contactPhone: "",
       preferredDate: "",
       preferredTime: "",
       meetingType: "Zoom",
@@ -70,18 +72,33 @@ export default function LandingPage() {
       return () => window.removeEventListener('beforeinstallprompt', handler);
    }, []);
 
-   const handleEnrollSubmit = (e) => {
+   const handleEnrollSubmit = async (e) => {
       e.preventDefault();
       setEnrollStatus({ loading: true, success: false });
-      // Simulation of submission
-      setTimeout(() => {
+      
+      try {
+         const response = await fetch("/api/public/enrollment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               ...enrollmentForm,
+               planName: selectedPlan?.name || "Trial"
+            })
+         });
+
+         const data = await response.json();
+         if (!response.ok) throw new Error(data.error || "Submission failed");
+
          setEnrollStatus({ loading: false, success: true });
          setTimeout(() => {
             setShowEnrollModal(false);
             setEnrollStatus({ loading: false, success: false });
             setEnrollmentForm({ schoolName: "", contactPerson: "", preferredDate: "", preferredTime: "", meetingType: "Zoom", notes: "" });
-         }, 3000);
-      }, 1500);
+         }, 4000);
+      } catch (err) {
+         setEnrollStatus({ loading: false, success: false });
+         alert("Meeting request failed: " + err.message);
+      }
    };
 
    const handleDownload = async () => {
@@ -286,6 +303,31 @@ export default function LandingPage() {
                                    placeholder="Full Name" 
                                    value={enrollmentForm.contactPerson}
                                    onChange={(e) => setEnrollmentForm({...enrollmentForm, contactPerson: e.target.value})}
+                                />
+                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Official Email</label>
+                                <input 
+                                   required
+                                   type="email" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   placeholder="official@school.edu" 
+                                   value={enrollmentForm.contactEmail}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, contactEmail: e.target.value})}
+                                />
+                             </div>
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-4">Phone Number</label>
+                                <input 
+                                   required
+                                   type="tel" 
+                                   className="input-field !py-4 !bg-slate-50 border-slate-100 focus:!bg-white" 
+                                   placeholder="+63 9xx xxx xxxx" 
+                                   value={enrollmentForm.contactPhone}
+                                   onChange={(e) => setEnrollmentForm({...enrollmentForm, contactPhone: e.target.value})}
                                 />
                              </div>
                           </div>
