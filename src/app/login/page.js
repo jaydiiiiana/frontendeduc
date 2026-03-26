@@ -30,7 +30,18 @@ export default function Home() {
             const res = await fetch(`/api/public/grades?code=${code}`);
             if (res.ok) {
                 const data = await res.json();
-                setAvailableGrades(Array.isArray(data) ? data : []);
+                const grades = Array.isArray(data) ? data : [];
+                setAvailableGrades(grades);
+                
+                // Auto-select first available option
+                if (grades.length > 0) {
+                    const firstGrade = grades[0];
+                    if (firstGrade.school_sections && firstGrade.school_sections.length > 0) {
+                        setFormData(prev => ({ ...prev, grade: `${firstGrade.name} - ${firstGrade.school_sections[0].name}` }));
+                    } else {
+                        setFormData(prev => ({ ...prev, grade: firstGrade.name }));
+                    }
+                }
             }
         } catch (e) { console.error("Error fetching custom grades:", e); }
     };
@@ -232,7 +243,7 @@ export default function Home() {
                                         <p className="text-[10px] font-extrabold text-primary uppercase tracking-widest mb-2 relative z-10">Academy Suggestion</p>
                                         <p className="text-slate-800 font-extrabold text-xl relative z-10">You belong in:</p>
                                         <div className="inline-block bg-white px-6 py-2 rounded-full mt-3 font-bold text-primary shadow-sm border border-primary/10 relative z-10">
-                                            {formData.grade}
+                                            {formData.grade || "Processing... 🐾"}
                                         </div>
                                     </div>
 

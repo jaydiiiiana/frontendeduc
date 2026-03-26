@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -76,123 +76,121 @@ export default function AdminDashboard() {
        ];
     })
   ];
+  
+  const fetchAllData = useCallback(async (forceUpdateCurriculum = false) => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("catUser"));
+      if (!storedUser) {
+        router.push("/");
+        return;
+      }
+
+      // 1. REFRESH CURRENT USER FROM DATABASE
+      const uOneRes = await fetch(`/api/users/${storedUser.id}`);
+      const userLatest = await uOneRes.json();
+      const activeUser = { ...storedUser, ...userLatest };
+      localStorage.setItem("catUser", JSON.stringify(activeUser));
+      setCurrentUser(activeUser);
+
+      if (activeUser.role === 'Student') {
+        router.push("/dashboard");
+        return;
+      }
+      
+      if (activeUser.role === 'Creator') {
+        router.push("/creator");
+        return;
+      }
+
+      // 2. Headmaster Expiry Check
+      if (activeUser.role === 'Headmaster' && activeUser.subscription_expires_at) {
+        const now = new Date();
+        const exp = new Date(activeUser.subscription_expires_at);
+        if (now > exp) {
+          setIsExpired(true);
+          setExpiryDate(exp.toLocaleDateString());
+          setLoading(false);
+          return;
+        }
+      }
+
+      const [uRes, cRes, aRes, vRes, gRes] = await Promise.all([
+        fetch("/api/users"),
+        fetch(`/api/curriculum?userId=${storedUser.id}&role=${storedUser.role}`),
+        fetch("/api/announcements"),
+        fetch(`/api/invites?userId=${storedUser.id}`),
+        fetch(`/api/admin/grades?headmasterId=${storedUser.id}`)
+      ]);
+      
+      const userData = await uRes.json();
+      const currData = await cRes.json();
+      const annData = await aRes.json();
+      const invData = await vRes.json();
+      const gradesData = await gRes.json();
+      
+      if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
+
+      // Setup curriculum structure
+      if (forceUpdateCurriculum) {
+        if (Array.isArray(gradesData) && gradesData.length > 0) {
+          const config = gradesData.map(g => ({
+            name: g.name,
+            sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
+          }));
+          setCurriculumConfig(config);
+        } else {
+          // If we are forcing an update and there's no data, we only reset if it's currently empty
+          setCurriculumConfig(prev => (prev.length === 0 ? [] : prev));
+        }
+      }
+              
+      // 3. School Isolation & Status Checks
+      if (activeUser.role !== 'Creator') {
+        if (Array.isArray(userData)) {
+          let myHeadmaster = null;
+          if (activeUser.role === 'Headmaster') myHeadmaster = activeUser;
+          else {
+            const myInviter = userData.find(u => String(u.id) === String(activeUser.invited_by));
+            if (myInviter?.role === 'Headmaster') myHeadmaster = myInviter;
+            else if (myInviter?.role === 'Teacher') {
+              myHeadmaster = userData.find(u => String(u.id) === String(myInviter.invited_by) && u.role === 'Headmaster');
+            }
+          }
+
+          if (myHeadmaster && myHeadmaster.id) {
+            headmasterIdRef.current = myHeadmaster.id;
+            if (myHeadmaster.is_frozen) {
+              router.push("/");
+              localStorage.removeItem("catUser");
+              alert("Access Denied: Your school has been frozen by the system. ❄️");
+              return;
+            }
+          }
+        }
+      }
+
+      if (!currData.error) setCustomCurriculum(currData);
+      if (Array.isArray(annData)) setAnnouncements(annData);
+      if (Array.isArray(invData)) setInvites(invData);
+
+      // 4. Initial Tab Setup (ONLY on first load)
+      if (forceUpdateCurriculum) {
+        if (activeUser.role === 'Teacher') {
+          setActiveTab("subjects");
+        }
+      }
+    } catch (e) { 
+      console.error("Fetch failed", e); 
+    } finally { 
+      setLoading(false); 
+    }
+  }, [router]);
 
   useEffect(() => {
-    const fetchAllData = async (forceUpdateCurriculum = false) => {
-       try {
-         const storedUser = JSON.parse(localStorage.getItem("catUser"));
-         if (!storedUser) { // If no user in local storage, redirect to home
-           router.push("/");
-           return;
-         }
-
-         // 1. REFRESH CURRENT USER FROM DATABASE (Real-time role/subscription check)
-         const uOneRes = await fetch(`/api/users/${storedUser.id}`);
-         const userLatest = await uOneRes.json();
-         const activeUser = { ...storedUser, ...userLatest };
-         localStorage.setItem("catUser", JSON.stringify(activeUser));
-         setCurrentUser(activeUser);
-
-         if (activeUser.role === 'Student') {
-           router.push("/dashboard");
-           return;
-         }
-         
-         if (activeUser.role === 'Creator') {
-           router.push("/creator");
-           return;
-         }
-
-          // 2. Headmaster Expiry Check
-          if (activeUser.role === 'Headmaster' && activeUser.subscription_expires_at) {
-             const now = new Date();
-             const exp = new Date(activeUser.subscription_expires_at);
-             if (now > exp) {
-               setIsExpired(true);
-               setExpiryDate(exp.toLocaleDateString());
-               setLoading(false);
-               return;
-             }
-          }
-
-         if (activeUser.role === 'Teacher') setActiveTab("subjects");
-
-          const [uRes, cRes, aRes, vRes, gRes] = await Promise.all([
-            fetch("/api/users"),
-            fetch(`/api/curriculum?userId=${storedUser.id}&role=${storedUser.role}`),
-            fetch("/api/announcements"),
-            fetch(`/api/invites?userId=${storedUser.id}`),
-            fetch(`/api/admin/grades?headmasterId=${storedUser.id}`)
-          ]);
-         const userData = await uRes.json();
-         const currData = await cRes.json();
-         const annData = await aRes.json();
-         const invData = await vRes.json();
-         const gradesData = await gRes.json();
-         
-         if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
-
-         // Setup curriculum structure
-         if (forceUpdateCurriculum) {
-           if (Array.isArray(gradesData) && gradesData.length > 0) {
-              const config = gradesData.map(g => ({
-                name: g.name,
-                sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
-              }));
-              setCurriculumConfig(config);
-            } else if (!curriculumConfig || curriculumConfig.length === 0) {
-              // Start with a clean slate for new Headmasters
-              setCurriculumConfig([]);
-            }
-          }
-                  
-          // 2. Cascade School Freeze Check
-          if (storedUser.role !== 'Creator') {
-            const allUData = userData;
-            if (Array.isArray(allUData)) {
-              let myHeadmaster = null;
-              if (storedUser.role === 'Headmaster') myHeadmaster = storedUser;
-              else {
-                // Use loose equality for IDs which might be strings or numbers
-                const myInviter = allUData.find(u => String(u.id) === String(storedUser.invited_by));
-                if (myInviter?.role === 'Headmaster') myHeadmaster = myInviter;
-                else if (myInviter?.role === 'Teacher') {
-                  myHeadmaster = allUData.find(u => String(u.id) === String(myInviter.invited_by) && u.role === 'Headmaster');
-                }
-              }
-
-              if (myHeadmaster && myHeadmaster.id) {
-                 headmasterIdRef.current = myHeadmaster.id;
-              }
-
-              if (myHeadmaster && myHeadmaster.subscription_expires_at) {
-                const now = new Date();
-                const exp = new Date(myHeadmaster.subscription_expires_at);
-                if (now > exp) {
-                  setIsExpired(true);
-                  setExpiryDate(exp.toLocaleDateString());
-                  setLoading(false);
-                  return;
-                }
-              }
-            }
-          }
-
-          if (!currData.error) setCustomCurriculum(currData);
-          if (Array.isArray(annData)) setAnnouncements(annData);
-          if (Array.isArray(invData)) setInvites(invData);
-       } catch (e) { 
-         console.error("Fetch failed", e); 
-       } finally { 
-         setLoading(false); 
-       }
-    };
     fetchAllData(true);
-    
-    // Auto-Sync every 15 seconds (keeps freeze status/users updated)
     const syncInterval = setInterval(() => fetchAllData(false), 15000);
     return () => clearInterval(syncInterval);
-  }, [router]);
+  }, [fetchAllData]);
 
   // Change user role
   const handleRoleChange = async (userId, newRole) => {
@@ -405,7 +403,10 @@ export default function AdminDashboard() {
       const data = await response.json();
       if (data.error) throw new Error(data.error);
       alert(`Created successfully! 🐾 ${data.code ? `\nInvite Code: ${data.code}` : ""}`);
-      window.location.reload();
+      
+      // Instead of refreshing the whole page, just refresh the data and go back to the view
+      setActiveTab("subjects"); 
+      fetchAllData(true); 
     } catch (e) { alert("Failed! " + e.message); }
   };
 
@@ -1313,7 +1314,8 @@ export default function AdminDashboard() {
                     alert("Educational structure synchronized! 🎉 Changes have been pushed to all registration forms.");
                     fetchAllData(true); // Force sync to lock in the new state
                   } else {
-                    alert("Sync failed! 😿");
+                    const errorData = await res.json();
+                    alert("Sync failed! 😿\nReason: " + (errorData.error || "Unknown error"));
                   }
                 } catch (e) { alert("Failed: " + e.message); }
              }}>
