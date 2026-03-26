@@ -86,14 +86,24 @@ export default function LandingPage() {
             })
          });
 
-         const data = await response.json();
+         const contentType = response.headers.get("content-type");
+         let data;
+         
+         if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+         } else {
+            const text = await response.text();
+            console.error("Server returned non-JSON response:", text);
+            throw new Error(`Server Error: ${response.status} (Check Render Logs)`);
+         }
+
          if (!response.ok) throw new Error(data.error || "Submission failed");
 
          setEnrollStatus({ loading: false, success: true });
          setTimeout(() => {
             setShowEnrollModal(false);
             setEnrollStatus({ loading: false, success: false });
-            setEnrollmentForm({ schoolName: "", contactPerson: "", preferredDate: "", preferredTime: "", meetingType: "Zoom", notes: "" });
+            setEnrollmentForm({ schoolName: "", contactPerson: "", contactEmail: "", contactPhone: "", preferredDate: "", preferredTime: "", meetingType: "Zoom", notes: "" });
          }, 4000);
       } catch (err) {
          setEnrollStatus({ loading: false, success: false });
