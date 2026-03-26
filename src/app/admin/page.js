@@ -1408,12 +1408,17 @@ export default function AdminDashboard() {
                           </td>
                           <td className="p-5 text-right font-bold text-slate-400 text-[10px] uppercase tracking-widest whitespace-nowrap">
                              {inv.is_used ? '-' : (() => {
-                               const expiryDate = new Date(new Date(inv.created_at).getTime() + 24 * 60 * 60 * 1000);
+                               if (!inv.created_at) return "Valid";
+                               const expiryDate = new Date(new Date(inv.created_at).getTime() + 30 * 24 * 60 * 60 * 1000);
                                const timeLeft = expiryDate.getTime() - new Date().getTime();
-                               const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                               const minsLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                               return timeLeft > 0 ? `${hoursLeft}h ${minsLeft}m Left` : "Expired";
+                               const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                               const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                               
+                               if (timeLeft <= 0) return <span className="text-red-500 font-black">Expired</span>;
+                               if (daysLeft > 0) return `${daysLeft}d ${hoursLeft}h Left`;
+                               return `${hoursLeft}h Left`;
                              })()}
+<div className="text-[8px] opacity-30 mt-1">{new Date(inv.created_at).toLocaleDateString()}</div>
                           </td>
                         </tr>
                       ))}

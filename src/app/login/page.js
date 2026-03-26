@@ -83,7 +83,9 @@ export default function Home() {
                 } else {
                     router.push("/dashboard");
                 }
-            } else { setError(data.error); }
+            } else { 
+                setError(data.details ? `${data.error}: ${data.details}` : data.error); 
+            }
         } catch (e) { setError("Connect error! 😿 Check if server is running."); }
     };
 
