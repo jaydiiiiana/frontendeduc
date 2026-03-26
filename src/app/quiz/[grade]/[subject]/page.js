@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { curriculum } from "@/data/curriculum";
+import { calculateLevel } from "@/lib/xp";
 
 export default function QuizPage() {
   const params = useParams();
@@ -59,7 +60,8 @@ export default function QuizPage() {
     } else {
       setIsFinished(true);
       // Update User EXP
-      const updatedUser = { ...user, exp: user.exp + score, level: Math.floor((user.exp + score) / 100) + 1 };
+      const totalExp = user.exp + score;
+      const updatedUser = { ...user, exp: totalExp, level: calculateLevel(totalExp) };
       localStorage.setItem("catUser", JSON.stringify(updatedUser));
       setUser(updatedUser);
     }

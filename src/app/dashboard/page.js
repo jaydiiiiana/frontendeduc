@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getXpProgress } from "@/lib/xp";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -252,11 +253,24 @@ export default function Dashboard() {
                   )}
                </button>
 
-               <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-center flex flex-col items-center">
+               <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-center flex flex-col items-center relative group">
                   <span className="text-[10px] font-black uppercase tracking-[3px] opacity-80 mb-0.5">Scholar Level</span>
-                  <span className="text-3xl font-black">{user.level}</span>
+                  <span className="text-3xl font-black">{getXpProgress(user.exp || 0).level}</span>
+                  
+                  {/* Hover Progress Tooltip */}
+                  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-white text-primary px-3 py-1.5 rounded-lg shadow-xl text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none border border-primary/10">
+                    {getXpProgress(user.exp || 0).currentLevelXp} / {getXpProgress(user.exp || 0).xpNeededForNext} EXP
+                  </div>
                </div>
             </div>
+          </div>
+
+          {/* New Global Level Progress Bar */}
+          <div className="mt-6 w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative border border-white/5 shadow-inner">
+             <div 
+               className="h-full bg-accent transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+               style={{ width: `${getXpProgress(user.exp || 0).percentage}%` }}
+             ></div>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 relative z-10 pt-8 border-t border-white/10">

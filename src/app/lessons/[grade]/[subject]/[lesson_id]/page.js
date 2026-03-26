@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { curriculum } from "@/data/curriculum";
+import { calculateLevel } from "@/lib/xp";
 
 export default function ScholarLessonPage() {
   const params = useParams();
@@ -122,7 +123,8 @@ export default function ScholarLessonPage() {
     } else {
       setFinished(true);
       saveProgress();
-      const updatedUser = { ...user, exp: (user.exp || 0) + score };
+      const totalExp = (user.exp || 0) + score;
+      const updatedUser = { ...user, exp: totalExp, level: calculateLevel(totalExp) };
       localStorage.setItem("catUser", JSON.stringify(updatedUser));
       setUser(updatedUser);
     }
@@ -326,7 +328,14 @@ export default function ScholarLessonPage() {
               <button 
                 className="group flex items-center gap-3 text-right"
                 onClick={() => {
-                  if (lesson.type === "lecture") saveProgress();
+                  if (lesson.type === "lecture") {
+                    saveProgress();
+                    // Award Reading EXP (10 points)
+                    const totalExp = (user.exp || 0) + 10;
+                    const updatedUser = { ...user, exp: totalExp, level: calculateLevel(totalExp) };
+                    localStorage.setItem("catUser", JSON.stringify(updatedUser));
+                    setUser(updatedUser);
+                  }
                   if (lessonIdx < lessonsInSubject.length - 1) goToLesson(lessonsInSubject[lessonIdx+1].id);
                   else router.push(`/lessons/${grade}/${subjectTitle}`);
                 }}
