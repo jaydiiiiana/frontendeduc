@@ -15,7 +15,6 @@ export const metadata = {
   title: "Cat Academy - Fun Learning! 🐾",
   description: "The cutest way to learn! Master Math, Science, English and more with your furry friend.",
   manifest: "/manifest.json",
-  themeColor: "#ff85b3",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
