@@ -152,11 +152,12 @@
     scrollbar-width: none; /* Firefox */
   }
   
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
   }
 }

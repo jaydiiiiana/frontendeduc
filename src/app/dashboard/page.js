@@ -179,9 +179,9 @@ export default function Dashboard() {
 
   if (isExpired) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-red-50 p-6 relative overflow-hidden">
+      <div className="min-h-screen w-full flex items-center justify-center bg-red-50 p-6 relative overflow-hidden text-center">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-200/30 filter blur-[80px] blob-shape"></div>
-        <div className="premium-card max-w-lg w-full text-center border-2 border-red-200 shadow-2xl relative z-10 transition-all">
+        <div className="premium-card max-w-lg w-full border-2 border-red-200 shadow-2xl relative z-10 animate-scale-in">
            <div className="text-8xl mb-6">🔒🏫</div>
            <h2 className="text-3xl font-black text-red-500 mb-4">School Access Paused</h2>
            <p className="text-slate-600 font-medium leading-relaxed mb-8">

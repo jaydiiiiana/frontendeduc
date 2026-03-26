@@ -98,13 +98,23 @@ export default function CreatorPanel() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
+      setHeadmasters(headmasters.map(hm => String(hm.id) === String(hmId) ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
+      
+      // Broadcast Unfreeze Event on Renewal
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'unfreeze',
+          payload: { headmasterId: hmId }
+        });
+      }
+
       alert("Subscription renewed successfully! 👑✅");
     } catch (e) { alert("Renewal Failed: " + e.message); }
   };
 
   const handleFreeze = async (hmId) => {
-    const currentHM = headmasters.find(hm => hm.id === hmId);
+    const currentHM = headmasters.find(hm => String(hm.id) === String(hmId));
     const isCurrentlyFrozen = currentHM && currentHM.subscription_expires_at && new Date(currentHM.subscription_expires_at) < new Date();
     
     let msg = "";
@@ -132,7 +142,7 @@ export default function CreatorPanel() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
+      setHeadmasters(headmasters.map(hm => String(hm.id) === String(hmId) ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
       
       // Broadcast Freeze/Unfreeze Event
       if (channelRef.current) {
@@ -219,7 +229,7 @@ export default function CreatorPanel() {
         {/* Global Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 animate-slide-up">
            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Total Schools</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Partner Schools</p>
               <h2 className="text-4xl font-black text-white">{headmasters.length}</h2>
            </div>
            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">

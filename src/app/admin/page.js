@@ -380,8 +380,11 @@ export default function AdminDashboard() {
 
   if (isExpired) {
     return (
-      <div className="flex-center" style={{ height: "100vh", background: "#fff5f5", padding: "2rem", textAlign: "center" }}>
-        <div className="premium-card cat-ears" style={{ maxWidth: "500px", border: "2px solid #ef4444" }}>
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#fff5f5] p-6 text-center relative overflow-hidden">
+        {/* Background Blobs for Frozen State */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-200/30 filter blur-[80px] blob-shape"></div>
+        
+        <div className="premium-card cat-ears max-w-lg w-full border-2 border-red-400 shadow-2xl relative z-10 animate-scale-in">
            <div style={{ fontSize: "5rem", marginBottom: "1rem" }}>🔒🏫</div>
            <h2 style={{ color: "#ef4444", marginBottom: "1rem" }}>School Access Frozen</h2>
            <p style={{ color: "#666", lineHeight: "1.6", marginBottom: "2rem" }}>
