@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
     const router = useRouter();
     const [mode, setMode] = useState("login");
-    const [formData, setFormData] = useState({ name: "", email: "", password: "", age: "", grade: "", verificationCode: "", school: "", nickname: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "Student", school: "", nickname: "", grade: "", verificationCode: "" });
     const [loginForm, setLoginForm] = useState({ name: "", password: "" });
     const [step, setStep] = useState(1);
     const [error, setError] = useState("");
@@ -23,14 +23,7 @@ export default function Home() {
         }
     }, [router]);
 
-    const handleAgeChange = (e) => {
-        const age = parseInt(e.target.value) || "";
-        setFormData({ ...formData, age });
-        if (age) {
-            let suggestedGrade = age <= 6 ? "Kinder 1" : `Grade ${Math.min(6, age - 6)} - Section 1`;
-            setFormData((prev) => ({ ...prev, age, grade: suggestedGrade }));
-        }
-    };
+
 
     const fetchCustomGrades = async (code) => {
         try {
@@ -210,16 +203,12 @@ export default function Home() {
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Password</label>
                                             <input type="password" placeholder="Create a password" className="input-field py-3.5" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
                                         </div>
-                                        <div className="flex flex-col gap-1.5">
-                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Your Age</label>
-                                            <input type="number" placeholder="Eg. 8" className="input-field py-3.5" value={formData.age} onChange={handleAgeChange} />
-                                        </div>
-                                        <div className="flex flex-col gap-1.5">
+                                        <div className="flex flex-col gap-1.5 md:col-span-2">
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4 flex items-center gap-1">Invite Code <span className="text-red-500 font-black ml-1 text-[8px] uppercase tracking-tighter">Required 🛡️</span></label>
                                             <input type="text" placeholder="Provided code" className="input-field py-3.5" value={formData.verificationCode} onChange={(e) => setFormData({ ...formData, verificationCode: e.target.value })} />
                                         </div>
                                     </div>
-                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.email || !formData.age || !formData.verificationCode || !formData.password || !formData.school} 
+                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.email || !formData.verificationCode || !formData.password || !formData.school} 
                                         onClick={async () => {
                                             await fetchCustomGrades(formData.verificationCode);
                                             setStep(2);

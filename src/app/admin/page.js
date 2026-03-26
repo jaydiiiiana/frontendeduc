@@ -341,6 +341,24 @@ export default function AdminDashboard() {
     } catch (e) { alert("Failed: " + e.message); }
   };
 
+  // Verify student grade/section
+  const handleVerify = async (userId, isVerified) => {
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isVerified, requesterId: currentUser.id })
+      });
+      if (res.ok) {
+        setUsers(users.map(u => u.id === userId ? { ...u, is_verified: isVerified } : u));
+        if (isVerified) alert("Student room placement confirmed! ✅🐾");
+      } else {
+        const data = await res.json();
+        alert("Failed to verify: " + (data.error || "Unknown error"));
+      }
+    } catch (e) { alert("Failed! " + e.message); }
+  };
+
   // Change student grade/section
   const handleGradeChange = async (userId, newGrade) => {
     try {
@@ -599,11 +617,21 @@ export default function AdminDashboard() {
                         {catUsers.map((u) => (
                           <div key={u.id} className="premium-card !p-5 group/user hover:-translate-y-1 transition-all border-slate-100 hover:border-primary-light hover:shadow-xl relative overflow-hidden">
                             <div className="flex items-center gap-4 relative z-10">
-                              <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center font-black text-xl shadow-inner transition-colors ${u.role === "Headmaster" ? "bg-amber-50 text-amber-600" : u.role === "Teacher" ? "bg-indigo-50 text-indigo-600" : "bg-slate-50 text-slate-400 group-hover/user:bg-primary-light/10 group-hover/user:text-primary"}`}>
+                              <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center font-black text-xl shadow-inner transition-colors relative ${u.role === "Headmaster" ? "bg-amber-50 text-amber-600" : u.role === "Teacher" ? "bg-indigo-50 text-indigo-600" : "bg-slate-50 text-slate-400 group-hover/user:bg-primary-light/10 group-hover/user:text-primary"}`}>
                                 {(u.name || "?")[0].toUpperCase()}
+                                {u.role === 'Student' && u.is_verified === false && (
+                                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px]" title="Verification Pending">⚠️</div>
+                                )}
                               </div>
                               <div className="flex-1 overflow-hidden">
-                                <h4 className="font-black text-slate-800 truncate leading-tight mb-1">{u.name}</h4>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-black text-slate-800 truncate leading-tight">{u.name}</h4>
+                                  {u.role === 'Student' && (
+                                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ${u.is_verified ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                      {u.is_verified ? 'Confirmed' : 'Pending'}
+                                    </span>
+                                  )}
+                                </div>
                                 {u.role === 'Student' ? (
                                   currentUser?.role === 'Headmaster' ? (
                                      <select 
@@ -623,15 +651,15 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 relative z-10">
-                              <div className="flex-1">
+                              <div className="flex items-center justify-between w-full gap-2">
                                 {u.id === currentUser?.id ? (
                                   <span className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest italic leading-none">Your Own Profile</span>
                                 ) : u.role === 'Headmaster' ? (
                                   <span className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest italic leading-none">Senior Official</span>
                                 ) : (
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 w-full">
                                     <select 
-                                      className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:ring-2 ring-primary-light/50 transition-all flex-1"
+                                      className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:ring-2 ring-primary-light/50 transition-all"
                                       value={u.role || "Student"}
                                       disabled={roleUpdating === u.id}
                                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
@@ -639,6 +667,16 @@ export default function AdminDashboard() {
                                       <option value="Student">🎒 Student</option>
                                       <option value="Teacher">📖 Teacher</option>
                                     </select>
+                                    
+                                    {u.role === 'Student' && u.is_verified === false && (
+                                       <button 
+                                         className="flex-1 py-1.5 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-green-500 transition-colors shadow-sm active:scale-95"
+                                         onClick={() => handleVerify(u.id, true)}
+                                       >
+                                         Confirm Room ✅
+                                       </button>
+                                    )}
+                                    
                                     {roleUpdating === u.id && <span className="animate-spin text-primary">⏳</span>}
                                   </div>
                                 )}
