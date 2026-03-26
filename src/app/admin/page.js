@@ -32,6 +32,12 @@ export default function AdminDashboard() {
        }
     });
 
+    channel.on('broadcast', { event: 'unfreeze' }, ({ payload }) => {
+       if (headmasterIdRef.current && String(payload.headmasterId) === String(headmasterIdRef.current)) {
+         setIsExpired(false);
+       }
+    });
+
     channel.subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
@@ -528,12 +534,12 @@ export default function AdminDashboard() {
                     <h2 className="text-3xl font-black text-slate-800 tracking-tight">Academy Roster <span className="text-primary text-2xl font-bold ml-2">({filteredUsers.length})</span></h2>
                     <p className="text-slate-500 font-medium">Manage your students and faculty members.</p>
                  </div>
-                 <div className="relative group min-w-[300px]">
+                 <div className="relative group w-full md:min-w-[300px]">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">🔍</span>
                     <input 
                       type="text" 
                       placeholder="Search anyone..." 
-                      className="input-field !pl-12 !py-4 shadow-sm focus:shadow-md transition-all !rounded-2xl"
+                      className="input-field !pl-12 !py-4 shadow-sm focus:shadow-md transition-all !rounded-2xl w-full"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -1238,7 +1244,7 @@ export default function AdminDashboard() {
                    </div>
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Total: {invites?.length || 0}</span>
                 </div>
-                <div className="overflow-x-auto no-scrollbar">
+                <div className="hidden md:block overflow-x-auto no-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100">

@@ -103,27 +103,48 @@ export default function CreatorPanel() {
     } catch (e) { alert("Renewal Failed: " + e.message); }
   };
 
-  const freezeSubscription = async (hmId) => {
-    if (!confirm("❄️ FREEZE SCHOOL: This will instantly block the Headmaster and all their students from accessing the dashboard. Proceed?")) return;
+  const handleFreeze = async (hmId) => {
+    const currentHM = headmasters.find(hm => hm.id === hmId);
+    const isCurrentlyFrozen = currentHM && currentHM.subscription_expires_at && new Date(currentHM.subscription_expires_at) < new Date();
+    
+    let msg = "";
+    let endpoint = "";
+    let body = {};
+
+    if (isCurrentlyFrozen) {
+      msg = "🔥 UNFREEZE SCHOOL: This will restore access for the Headmaster and their students. Proceed?";
+      endpoint = "/api/admin/unfreeze";
+      body = { userId: currentUser.id, targetUserId: hmId };
+    } else {
+      msg = "❄️ FREEZE SCHOOL: This will instantly block the Headmaster and all their students from accessing the dashboard. Proceed?";
+      endpoint = "/api/admin/freeze";
+      body = { userId: currentUser.id, targetUserId: hmId };
+    }
+
+    if (!confirm(msg)) return;
+
     try {
-      const res = await fetch("/api/admin/freeze", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: currentUser.id, targetUserId: hmId })
+        body: JSON.stringify(body)
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
+      
       setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
-      // Broadcast Freeze Event
+      
+      // Broadcast Freeze/Unfreeze Event
       if (channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
-          event: 'freeze',
+          event: isCurrentlyFrozen ? 'unfreeze' : 'freeze',
           payload: { headmasterId: hmId }
         });
       }
-      alert(`Academy Access FROZEN for ID: ${hmId} ❄️🏫`);
-    } catch (e) { alert("Freeze Failed: " + e.message); }
+      
+      alert(isCurrentlyFrozen ? "Academy Access RESTORED (Unfrozen) 🏫🔥" : `Academy Access FROZEN for ID: ${hmId} ❄️🏫`);
+    } catch (e) { alert("Action Failed: " + e.message); }
   };
 
   const generateHeadmasterCode = async () => {
@@ -227,53 +248,68 @@ export default function CreatorPanel() {
                   return (
                     <div key={hm.id} className={`group bg-white/5 border border-white/10 p-8 rounded-[2rem] hover:bg-white/[0.08] transition-all shadow-xl ${isExpired ? 'ring-1 ring-red-500/20' : ''}`}>
                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                          <div className="flex items-center gap-6">
-                             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner ${isExpired ? 'bg-red-500/10 text-red-400' : 'bg-primary/20 text-primary'}`}>
-                                {(hm.name || "S")[0].toUpperCase()}
-                             </div>
-                             <div>
-                                <h4 className="text-xl font-black text-white mb-1 group-hover:text-primary transition-colors">{hm.name}</h4>
-                                <div className="flex items-center gap-3">
-                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {String(hm.id || "").slice(0, 8)}</span>
-                                   <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm ${isExpired ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
-                                      {isExpired ? 'Frozen' : 'Verified'}
-                                   </span>
-                                </div>
-                             </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between w-full md:w-auto gap-6 sm:gap-10">
-                             <div className="text-center">
-                                <p className="text-2xl font-black text-white leading-none mb-2">{hm.teacherCount}</p>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Faculty</p>
-                             </div>
-                             <div className="text-center">
-                                <p className="text-2xl font-black text-white leading-none mb-2">{hm.studentCount}</p>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Students</p>
-                             </div>
-                          </div>
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                           <div className="flex items-center gap-4">
+                              <div className="w-16 h-16 bg-gradient-to-br from-primary to-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-xl">
+                                 {hm.name?.charAt(0) || 'H'}
+                              </div>
+                              <div>
+                                 <h3 className="text-2xl font-black text-white tracking-tight">{hm.name}</h3>
+                                 <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">School ID: {hm.id}</span>
+                                    <span className="bg-green-500/10 text-green-400 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Verified</span>
+                                 </div>
+                              </div>
+                           </div>
+                           <div className="flex gap-8 px-2 md:px-0">
+                              <div className="text-center md:text-right">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Faculty</p>
+                                 <p className="text-2xl font-black text-white">{hm.teacherCount}</p>
+                              </div>
+                              <div className="text-center md:text-right">
+                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Students</p>
+                                 <p className="text-2xl font-black text-white">{hm.studentCount}</p>
+                              </div>
+                           </div>
+                        </div>
                        </div>
 
                        <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                          <div className="space-y-1">
-                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">License Expiry</p>
-                             <p className="text-sm font-bold text-white">{hm.subscription_expires_at ? new Date(hm.subscription_expires_at).toLocaleDateString() : 'Perpetual Access'}</p>
-                          </div>
-                          
-                          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                             <select 
-                               className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-xs font-black text-white focus:ring-2 ring-primary/40 outline-none transition-all"
-                               value={renewDuration}
-                               onChange={(e) => setRenewDuration(e.target.value)}
-                             >
-                                <option value="1">1 Month</option>
-                                <option value="3">3 Months</option>
-                                <option value="6">6 Months</option>
-                                <option value="12">1 Year</option>
-                             </select>
-                             <button className="px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all" onClick={() => renewSubscription(hm.id, renewDuration)}>Renew</button>
-                             <button className="px-6 py-3 bg-white/5 border border-red-500/30 text-red-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all" onClick={() => freezeSubscription(hm.id)}>Freeze</button>
-                          </div>
+                           <div className="flex flex-col">
+                              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1">License Expiry</p>
+                              <div className="flex flex-wrap items-center gap-3">
+                                 <h4 className="text-lg font-black text-slate-200">{hm.subscription_expires_at ? new Date(hm.subscription_expires_at).toLocaleDateString() : 'Perpetual Access'}</h4>
+                                 {hm.subscription_expires_at && (() => {
+                                    const diff = new Date(hm.subscription_expires_at) - new Date();
+                                    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                    return (
+                                       <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${days > 7 ? 'bg-green-500/20 text-green-400' : days > 0 ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>
+                                          {days > 0 ? `${days} Days Remaining` : "Expired/Frozen"}
+                                       </span>
+                                    );
+                                 })()}
+                              </div>
+                           </div>
+                           
+                           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                              <select 
+                                className="w-full md:w-auto bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-xs font-black text-white focus:ring-2 ring-primary/40 outline-none transition-all"
+                                value={renewDuration}
+                                onChange={(e) => setRenewDuration(e.target.value)}
+                              >
+                                 <option value="1">1 Month</option>
+                                 <option value="3">3 Months</option>
+                                 <option value="6">6 Months</option>
+                                 <option value="12">1 Year</option>
+                              </select>
+                              <button className="w-full md:w-auto px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all" onClick={() => renewSubscription(hm.id, renewDuration)}>Renew</button>
+                              <button 
+                                className={`w-full md:w-auto px-6 py-3 bg-white/5 border ${new Date() > new Date(hm.subscription_expires_at) ? 'border-green-500/30 text-green-400 hover:!bg-green-500/10' : 'border-red-500/30 text-red-400 hover:!bg-red-500/10'} font-black text-[10px] uppercase tracking-widest rounded-xl transition-all`}
+                                onClick={() => handleFreeze(hm.id)}
+                              >
+                                 {new Date() > new Date(hm.subscription_expires_at) ? "UNFREEZE" : "FREEZE"}
+                              </button>
+                           </div>
                        </div>
                     </div>
                   );

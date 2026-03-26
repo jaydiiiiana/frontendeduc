@@ -25,6 +25,12 @@ export default function Dashboard() {
        }
     });
 
+    channel.on('broadcast', { event: 'unfreeze' }, ({ payload }) => {
+       if (headmasterIdRef.current && String(payload.headmasterId) === String(headmasterIdRef.current)) {
+         setIsExpired(false);
+       }
+    });
+
     channel.subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
@@ -314,10 +320,10 @@ export default function Dashboard() {
         </div>
 
         {allSubjects.length === 0 ? (
-          <div className="premium-card !p-20 text-center animate-fade-in group">
-             <div className="text-[10rem] mb-6 grayscale opacity-20 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500">📭</div>
+          <div className="premium-card p-8 md:p-20 text-center animate-fade-in group">
+             <div className="text-6xl md:text-[10rem] mb-6 grayscale opacity-20 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500">📭</div>
              <h3 className="text-2xl font-black text-slate-700 mb-2">No subjects yet!</h3>
-             <p className="text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">
+             <p className="text-slate-500 font-medium max-w-sm mx-auto leading-relaxed px-4 md:px-0">
                 {user.role === 'Student' 
                   ? "Don't worry kitten! Ask your teacher for an invite code and enter it above to start learning." 
                   : "Welcome Educator! Head to the Admin Panel to create your first official subject!"}
@@ -387,12 +393,12 @@ export default function Dashboard() {
               className="premium-card !p-0 max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] rounded-t-[2.5rem] md:rounded-[2.5rem] animate-slide-up"
               onClick={e => e.stopPropagation()}
            >
-              <div className={`p-8 flex items-center justify-between text-white ${showAnnouncements ? 'bg-amber-500' : 'bg-indigo-500'}`}>
+              <div className={`p-6 md:p-8 flex items-center justify-between text-white ${showAnnouncements ? 'bg-amber-500' : 'bg-indigo-500'}`}>
                   <div className="flex items-center gap-4">
-                     <span className="text-4xl">{showAnnouncements ? "📣" : "🔔"}</span>
+                     <span className="text-3xl md:text-4xl">{showAnnouncements ? "📣" : "🔔"}</span>
                      <div>
-                        <h2 className="text-2xl font-black">{showAnnouncements ? "Bulletins" : "Updates"}</h2>
-                        <p className="text-sm opacity-90 font-medium">From the Academy Hall</p>
+                        <h2 className="text-xl md:text-2xl font-black">{showAnnouncements ? "Bulletins" : "Updates"}</h2>
+                        <p className="text-[10px] md:text-sm opacity-90 font-medium uppercase tracking-wider">Academy Hall</p>
                      </div>
                   </div>
                   <button 
@@ -403,7 +409,7 @@ export default function Dashboard() {
                   </button>
               </div>
 
-               <div className="flex-1 overflow-y-auto p-8 bg-white/95 no-scrollbar">
+               <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white/95 no-scrollbar">
                   {showAnnouncements ? (
                     <div className="space-y-4">
                        {announcements.length === 0 ? <div className="text-center py-10 text-slate-300 font-bold">No announcements yet</div> : 
