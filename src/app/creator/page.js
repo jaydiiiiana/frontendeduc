@@ -210,7 +210,7 @@ export default function CreatorPanel() {
                              <div>
                                 <h4 className="text-xl font-black text-white mb-1 group-hover:text-primary transition-colors">{hm.name}</h4>
                                 <div className="flex items-center gap-3">
-                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {hm.id?.slice(0, 8)}</span>
+                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {String(hm.id || "").slice(0, 8)}</span>
                                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm ${isExpired ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
                                       {isExpired ? 'Frozen' : 'Verified'}
                                    </span>
