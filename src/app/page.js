@@ -9,6 +9,9 @@ export default function LandingPage() {
    const [totalSubjects, setTotalSubjects] = useState(0);
    const [successRate, setSuccessRate] = useState(0);
    const [user, setUser] = useState(null);
+   const [stories, setStories] = useState([]);
+   const [ratingData, setRatingData] = useState({ average: 0, count: 0 });
+   const [newStory, setNewStory] = useState("");
    const deferredPrompt = useRef(null);
 
    useEffect(() => {
@@ -27,6 +30,25 @@ export default function LandingPage() {
          } catch (e) { setTotalUsers(2); setTotalSchools(1); setTotalSubjects(5); setSuccessRate(95); }
       };
       fetchStats();
+
+      const fetchStories = async () => {
+         try {
+            const res = await fetch("/api/public/success-stories");
+            const data = await res.json();
+            setStories(data || []);
+         } catch (e) { console.error(e); }
+      };
+      
+      const fetchRatings = async () => {
+         try {
+            const res = await fetch("/api/public/ratings");
+            const data = await res.json();
+            setRatingData(data || { average: 0, count: 0 });
+         } catch (e) { console.error(e); }
+      };
+
+      fetchStories();
+      fetchRatings();
 
       // Listen for PWA install prompt
       const handler = (e) => {
@@ -121,15 +143,15 @@ export default function LandingPage() {
                      <h3 className="text-2xl font-black mb-4 text-slate-800">Gamified Learning</h3>
                      <p className="text-slate-500 font-medium leading-relaxed">Every quiz is an adventure! Earn EXP, collect badges, and level up as you master your subjects.</p>
                   </div>
-                  <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-100">
-                     <div className="text-6xl mb-6 inline-block bg-secondary/10 p-6 rounded-[2rem] shadow-inner">📚</div>
-                     <h3 className="text-2xl font-black mb-4 text-slate-800">Full Curriculum</h3>
-                     <p className="text-slate-500 font-medium leading-relaxed">From K to Grade 6, covering Math, Science, English, Filipino, and more with feline flair.</p>
-                  </div>
                   <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-200">
                      <div className="text-6xl mb-6 inline-block bg-accent/10 p-6 rounded-[2rem] shadow-inner">📊</div>
                      <h3 className="text-2xl font-black mb-4 text-slate-800">Admin Tools</h3>
                      <p className="text-slate-500 font-medium leading-relaxed">Teachers can create custom tests and track every student's progress with real-time analytics.</p>
+                  </div>
+                  <div className="premium-card text-center hover:-translate-y-2 transition-transform duration-300 delay-300">
+                     <div className="text-6xl mb-6 inline-block bg-secondary/10 p-6 rounded-[2rem] shadow-inner">😽</div>
+                     <h3 className="text-2xl font-black mb-4 text-slate-800">Friendly Support</h3>
+                     <p className="text-slate-500 font-medium leading-relaxed">Our furry community is here to help you through every challenge. Learning has never been this supportive!</p>
                   </div>
                </div>
             </div>
@@ -151,6 +173,162 @@ export default function LandingPage() {
                <div className="flex-1">
                   <h2 className="text-6xl font-black text-secondary-color mb-2 drop-shadow-sm">{successRate}%</h2>
                   <p className="text-lg font-bold text-slate-500 uppercase tracking-wider">Success Rate <span className="ml-1">🎓</span></p>
+               </div>
+            </div>
+         </section>
+
+         {/* Pricing Section */}
+         <section id="pricing" className="relative z-10 py-24 px-6 bg-slate-50/50">
+            <div className="container mx-auto max-w-6xl">
+               <div className="text-center mb-16">
+                  <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-800">Choose Your Plan 💎</h2>
+                  <p className="text-xl text-slate-500 font-medium">Unlock the full potential of Cat Academy today.</p>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {[
+                     { name: 'Trial', duration: '1 Month', price: 'Free', color: 'primary' },
+                     { name: 'Standard', duration: '3 Months', price: '₱250', color: 'accent-blue' },
+                     { name: 'Premium', duration: '6 Months', price: '₱450', color: 'secondary' },
+                     { name: 'Annual', duration: '1 Year', price: '₱800', color: 'green-500', popular: true }
+                  ].map((p, i) => (
+                     <div key={p.name} className={`premium-card relative flex flex-col items-center p-8 border-2 ${p.popular ? 'border-primary' : 'border-transparent'}`}>
+                        {p.popular && <span className="absolute -top-4 bg-primary text-white px-4 py-1 rounded-full text-xs font-black uppercase">Most Popular</span>}
+                        <h3 className="text-2xl font-black mb-2">{p.name}</h3>
+                        <p className="text-slate-400 font-bold uppercase tracking-tighter text-sm mb-6">{p.duration}</p>
+                        <div className="text-4xl font-black text-slate-800 mb-8">{p.price}</div>
+                        <ul className="text-slate-500 text-sm font-medium space-y-3 mb-8 text-center">
+                           <li>✨ Full Access</li>
+                           <li>🎮 Gamified Quizzes</li>
+                           <li>📊 Progress Tracking</li>
+                        </ul>
+                        <button className={`w-full py-4 rounded-2xl font-black transition-all ${p.popular ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                           Choose {p.name}
+                        </button>
+                     </div>
+                  ))}
+               </div>
+            </div>
+         </section>
+
+         {/* Success Stories Section */}
+         <section id="success-stories" className="relative z-10 py-24 px-6 bg-white">
+            <div className="container mx-auto max-w-4xl">
+               <div className="text-center mb-16">
+                  <h2 className="text-4xl md:text-5xl font-black mb-4 text-slate-800">Success Stories 🐾</h2>
+                  <p className="text-xl text-slate-500 font-medium mb-4">Read what our amazing community has to say.</p>
+                  
+                  {/* Rating Display */}
+                  <div className="flex flex-col items-center gap-2">
+                     <div className="flex gap-1 text-3xl text-yellow-400">
+                        {[1, 2, 3, 4, 5].map(s => (
+                           <span key={s} className={s <= ratingData.average ? "opacity-100" : "opacity-30"}>⭐</span>
+                        ))}
+                     </div>
+                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{ratingData.average} / 5 ({ratingData.count} ratings)</p>
+                     
+                     {user && (
+                        <div className="mt-4 flex flex-col items-center">
+                           <p className="text-xs font-black text-slate-400 mb-2 uppercase tracking-wider">Rate the website:</p>
+                           <div className="flex gap-2">
+                              {[1, 2, 3, 4, 5].map(s => (
+                                 <button 
+                                    key={s} 
+                                    onClick={async () => {
+                                       await fetch("/api/ratings", {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ userId: user.id, rating: s })
+                                       });
+                                       const res = await fetch("/api/public/ratings");
+                                       const d = await res.json();
+                                       setRatingData(d);
+                                    }}
+                                    className="text-2xl hover:scale-110 transition-transform"
+                                 >
+                                    ⭐
+                                 </button>
+                              ))}
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               </div>
+
+               {/* Post Story (Headmaster only) */}
+               {user?.role === 'Headmaster' && (
+                  <div className="glass-panel !p-8 mb-12 border-primary/20">
+                     <h4 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                        Share a Success Story <span className="text-2xl">✍️</span>
+                     </h4>
+                     <textarea 
+                        className="w-full p-4 rounded-2xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-slate-600 mb-4"
+                        placeholder="Tell us about a learning breakthrough..."
+                        rows="4"
+                        value={newStory}
+                        onChange={(e) => setNewStory(e.target.value)}
+                     ></textarea>
+                     <button 
+                        onClick={async () => {
+                           if (!newStory) return;
+                           const res = await fetch("/api/success-stories", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ content: newStory, authorId: user.id })
+                           });
+                           if (res.ok) {
+                              setNewStory("");
+                              const updated = await fetch("/api/public/success-stories");
+                              const d = await updated.json();
+                              setStories(d);
+                           }
+                        }}
+                        className="btn-primary !py-4 !px-8 shadow-lg shadow-primary/20"
+                     >
+                        Post Story 🎉
+                     </button>
+                  </div>
+               )}
+
+               {/* Stories List */}
+               <div className="space-y-8">
+                  {stories.length > 0 ? stories.map((s, i) => (
+                     <div key={i} className="premium-card !p-8 border-slate-100 hover:border-primary/20 transition-all">
+                        <p className="text-lg text-slate-600 font-medium leading-relaxed mb-6 italic">"{s.content}"</p>
+                        <div className="flex justify-between items-center border-t border-slate-50 pt-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center font-black text-primary">
+                                 {s.users?.name?.charAt(0) || '🎓'}
+                              </div>
+                              <div>
+                                 <p className="text-sm font-black text-slate-800">{s.users?.name || "Headmaster"}</p>
+                                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Shared on {new Date(s.created_at).toLocaleDateString()}</p>
+                              </div>
+                           </div>
+                           <button 
+                              onClick={async () => {
+                                 const res = await fetch("/api/success-stories", {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ storyId: s.id, action: 'like' })
+                                 });
+                                 if (res.ok) {
+                                    const updated = await fetch("/api/public/success-stories");
+                                    const d = await updated.json();
+                                    setStories(d);
+                                 }
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 text-slate-400 font-black text-xs hover:bg-primary-light hover:text-primary transition-all group"
+                           >
+                              <span className="group-hover:scale-125 transition-transform">🐾</span> {s.likes || 0} Likes
+                           </button>
+                        </div>
+                     </div>
+                  )) : (
+                     <div className="text-center py-12 opacity-50 grayscale">
+                        <div className="text-6xl mb-4">😿</div>
+                        <p className="font-black text-slate-400 uppercase tracking-widest">No success stories yet. Check back soon!</p>
+                     </div>
+                  )}
                </div>
             </div>
          </section>
@@ -182,17 +360,21 @@ export default function LandingPage() {
                      </div>
                   </div>
 
-                  {/* Quick Navigation */}
-                  <div>
-                     <h4 className="text-xs font-black uppercase tracking-[2px] text-slate-400 mb-8 mt-2">Navigation</h4>
-                     <ul className="space-y-4">
-                        {['Dashboard', 'About Us', 'Curriculum', 'Pricing', 'Success Stories'].map(link => (
+                   <div>
+                      <h4 className="text-xs font-black uppercase tracking-[2px] text-slate-400 mb-8 mt-2">Navigation</h4>
+                      <ul className="space-y-4">
+                        {['Dashboard', 'About Us', 'Pricing', 'Success Stories'].map(link => (
                            <li key={link}>
-                              <span className="text-slate-600 font-bold hover:text-primary transition-colors cursor-pointer">{link}</span>
+                              <span className="text-slate-600 font-bold hover:text-primary transition-colors cursor-pointer" onClick={() => {
+                                 const id = link.toLowerCase().replace(/\s+/g, '-');
+                                 const el = document.getElementById(id);
+                                 if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                 else if (link === 'Dashboard') window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }}>{link}</span>
                            </li>
                         ))}
-                     </ul>
-                  </div>
+                      </ul>
+                   </div>
 
                   {/* Contact Hub */}
                   <div>
