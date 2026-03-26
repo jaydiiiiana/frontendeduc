@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 export default function Home() {
     const router = useRouter();
     const [mode, setMode] = useState("login");
-    const [formData, setFormData] = useState({ name: "", email: "", password: "", age: "", grade: "", verificationCode: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", password: "", age: "", grade: "", verificationCode: "", school: "", nickname: "" });
     const [loginForm, setLoginForm] = useState({ name: "", password: "" });
     const [step, setStep] = useState(1);
     const [error, setError] = useState("");
+    const [showWelcome, setShowWelcome] = useState(false);
+    const [welcomeUserData, setWelcomeUserData] = useState(null);
+    const [availableGrades, setAvailableGrades] = useState([]);
     useEffect(() => {
         const stored = localStorage.getItem("catUser");
         if (stored) {
@@ -29,12 +32,30 @@ export default function Home() {
         }
     };
 
+    const fetchCustomGrades = async (code) => {
+        try {
+            const res = await fetch(`/api/public/grades?code=${code}`);
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableGrades(Array.isArray(data) ? data : []);
+            }
+        } catch (e) { console.error("Error fetching custom grades:", e); }
+    };
+
     const handleRegister = async (e) => {
         e.preventDefault();
         
         // Frontend validation for email domain
         if (!formData.email.endsWith("@educ.ph")) {
             setError("Wait! 🛑 Registration requires an official @educ.ph email.");
+            return;
+        }
+
+        // Password complexity check
+        const hasUpper = /[A-Z]/.test(formData.password);
+        const hasLower = /[a-z]/.test(formData.password);
+        if (formData.password.length < 8 || !hasUpper || !hasLower) {
+            setError("Wait! 🛑 Password must be at least 8 characters and include BOTH uppercase and lowercase letters.");
             return;
         }
 
@@ -48,9 +69,16 @@ export default function Home() {
             if (data.success) {
                 localStorage.setItem("catUser", JSON.stringify(data.user));
                 const role = data.user.role;
-                if (role === 'Creator') router.push("/creator");
-                else if (role === 'Headmaster' || role === 'Teacher') router.push("/admin");
-                else router.push("/dashboard");
+                if (role === 'Headmaster') {
+                    setWelcomeUserData(data.user);
+                    setShowWelcome(true);
+                } else if (role === 'Creator') {
+                    router.push("/creator");
+                } else if (role === 'Teacher') {
+                    router.push("/admin");
+                } else {
+                    router.push("/dashboard");
+                }
             } else { setError(data.error); }
         } catch (e) { setError("Connect error! 😿 Check if server is running."); }
     };
@@ -166,6 +194,14 @@ export default function Home() {
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
                                             <input type="text" placeholder="Pick a cool name" className="input-field py-3.5" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                                         </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Nickname</label>
+                                            <input type="text" placeholder="Cool alias" className="input-field py-3.5" value={formData.nickname} onChange={(e) => setFormData({ ...formData, nickname: e.target.value })} />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Working/Studying At</label>
+                                            <input type="text" placeholder="School name" className="input-field py-3.5" value={formData.school} onChange={(e) => setFormData({ ...formData, school: e.target.value })} />
+                                        </div>
                                         <div className="flex flex-col gap-1.5 md:col-span-2">
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">School Email (@educ.ph)</label>
                                             <input type="email" placeholder="you@educ.ph" className="input-field py-3.5" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase() })} />
@@ -183,7 +219,11 @@ export default function Home() {
                                             <input type="text" placeholder="Provided code" className="input-field py-3.5" value={formData.verificationCode} onChange={(e) => setFormData({ ...formData, verificationCode: e.target.value })} />
                                         </div>
                                     </div>
-                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.email || !formData.age || !formData.verificationCode || !formData.password} onClick={() => setStep(2)}>
+                                    <button className="btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0" disabled={!formData.name || !formData.email || !formData.age || !formData.verificationCode || !formData.password || !formData.school} 
+                                        onClick={async () => {
+                                            await fetchCustomGrades(formData.verificationCode);
+                                            setStep(2);
+                                        }}>
                                         Next Step <span className="text-lg leading-none">✨</span>
                                     </button>
 
@@ -208,22 +248,39 @@ export default function Home() {
                                     </div>
 
                                     <div className="flex flex-col gap-2 text-left w-full mt-2">
-                                        <label className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Tweak Placement</label>
+                                        <label className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Select Your Room</label>
                                         <div className="relative">
                                             <select
                                                 className="input-field appearance-none cursor-pointer pr-12 font-bold"
                                                 value={formData.grade}
                                                 onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                                             >
-                                                {["Kinder 1", "Kinder 2"].map(g => <option key={g} value={g}>{g}</option>)}
-                                                {[1, 2, 3, 4, 5, 6].map(gradeNum => (
-                                                    <optgroup key={gradeNum} label={`Grade ${gradeNum}`} className="font-bold text-slate-800">
-                                                        <option value={`Grade ${gradeNum}`} className="font-medium">Standard Room</option>
-                                                        <option value={`Grade ${gradeNum} - Section 1`} className="font-medium">Section 1</option>
-                                                        <option value={`Grade ${gradeNum} - Section 2`} className="font-medium">Section 2</option>
-                                                        <option value={`Grade ${gradeNum} - Section 3`} className="font-medium">Section 3</option>
-                                                    </optgroup>
-                                                ))}
+                                                {availableGrades.length > 0 ? (
+                                                    availableGrades.map(g => (
+                                                        <optgroup key={g.id} label={g.name} className="font-bold text-slate-800">
+                                                            {g.school_sections?.map(s => (
+                                                                <option key={s.id} value={`${g.name} - ${s.name}`} className="font-medium">
+                                                                    {s.name}
+                                                                </option>
+                                                            ))}
+                                                            {(!g.school_sections || g.school_sections.length === 0) && (
+                                                                <option value={g.name} className="font-medium">Standard Room</option>
+                                                            )}
+                                                        </optgroup>
+                                                    ))
+                                                ) : (
+                                                    <>
+                                                        {["Kinder 1", "Kinder 2"].map(g => <option key={g} value={g}>{g}</option>)}
+                                                        {[1, 2, 3, 4, 5, 6].map(gradeNum => (
+                                                            <optgroup key={gradeNum} label={`Grade ${gradeNum}`} className="font-bold text-slate-800">
+                                                                <option value={`Grade ${gradeNum}`} className="font-medium">Standard Room</option>
+                                                                <option value={`Grade ${gradeNum} - Section 1`} className="font-medium">Section 1</option>
+                                                                <option value={`Grade ${gradeNum} - Section 2`} className="font-medium">Section 2</option>
+                                                                <option value={`Grade ${gradeNum} - Section 3`} className="font-medium">Section 3</option>
+                                                            </optgroup>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </select>
                                             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 font-bold">
                                                 ▼
@@ -254,6 +311,29 @@ export default function Home() {
                     <span className="cursor-pointer hover:text-slate-800">Terms</span>
                 </div>
             </footer>
+
+            {/* Headmaster Welcome Modal */}
+            {showWelcome && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-900/40 animate-fade-in">
+                    <div className="premium-card cat-ears max-w-md w-full p-10 text-center animate-scale-up border-primary/30 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-primary via-accent to-secondary"></div>
+                        <div className="text-7xl mb-6">🎓</div>
+                        <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight leading-tight">
+                            Welcome, <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Headmaster {welcomeUserData?.nickname || welcomeUserData?.name}!</span>
+                        </h2>
+                        <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                            Congratulations! You are now the Headmaster of your primary room. Lead your team and inspire your students! 🌸
+                        </p>
+                        <button 
+                            className="btn-primary w-full !py-4 shadow-xl shadow-primary/20"
+                            onClick={() => router.push("/admin")}
+                        >
+                            Start Leading Now 🚀
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
