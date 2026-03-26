@@ -1,11 +1,27 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function CreatorPanel() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [invites, setInvites] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const channelRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize Realtime Channel
+    const channel = supabase.channel('academy-events');
+    channel.subscribe();
+    channelRef.current = channel;
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
+    };
+  }, []);
   const [headmasters, setHeadmasters] = useState([]);
   const [duration, setDuration] = useState(1);
   const [renewDuration, setRenewDuration] = useState(1);
@@ -98,7 +114,15 @@ export default function CreatorPanel() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setHeadmasters(headmasters.map(hm => hm.id === hmId ? { ...hm, subscription_expires_at: data.newExpiry } : hm));
-      alert("School has been FROZEN. 🧊 access is now blocked.");
+      // Broadcast Freeze Event
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'freeze',
+          payload: { headmasterId: hmId }
+        });
+      }
+      alert(`Academy Access FROZEN for ID: ${hmId} ❄️🏫`);
     } catch (e) { alert("Freeze Failed: " + e.message); }
   };
 
@@ -290,7 +314,15 @@ export default function CreatorPanel() {
                      <div key={i} className="flex items-center justify-between p-4 bg-slate-800 rounded-2xl border border-white/5 group">
                         <div>
                            <p className="text-xs font-black text-primary font-mono tracking-widest mb-1">{inv.code}</p>
-                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Valid 24h</p>
+                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                             {(() => {
+                               const expiryDate = new Date(new Date(inv.created_at).getTime() + 24 * 60 * 60 * 1000);
+                               const timeLeft = expiryDate.getTime() - new Date().getTime();
+                               const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                               const minsLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                               return timeLeft > 0 ? `Expires in: ${hoursLeft}h ${minsLeft}m` : "Expired";
+                             })()}
+                           </p>
                         </div>
                         <button 
                           onClick={() => { if (typeof navigator !== 'undefined') { navigator.clipboard.writeText(inv.code); alert("Code Transferred! 🎫"); } }}

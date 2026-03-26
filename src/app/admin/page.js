@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -15,6 +16,25 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isExpired, setIsExpired] = useState(false);
   const [expiryDate, setExpiryDate] = useState(null);
+  const headmasterIdRef = useRef(null);
+
+  useEffect(() => {
+    const channel = supabase.channel('academy-events');
+    
+    channel.on('broadcast', { event: 'nuclear_reset' }, () => {
+      localStorage.removeItem("catUser");
+      window.location.href = "/";
+    });
+
+    channel.on('broadcast', { event: 'freeze' }, ({ payload }) => {
+       if (headmasterIdRef.current && String(payload.headmasterId) === String(headmasterIdRef.current)) {
+         setIsExpired(true);
+       }
+    });
+
+    channel.subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
   
   // Create Content State
   const [contentType, setContentType] = useState("subject"); 
@@ -112,11 +132,16 @@ export default function AdminDashboard() {
               let myHeadmaster = null;
               if (storedUser.role === 'Headmaster') myHeadmaster = storedUser;
               else {
-                const myInviter = allUData.find(u => u.id === (storedUser.invited_by));
+                // Use loose equality for IDs which might be strings or numbers
+                const myInviter = allUData.find(u => String(u.id) === String(storedUser.invited_by));
                 if (myInviter?.role === 'Headmaster') myHeadmaster = myInviter;
                 else if (myInviter?.role === 'Teacher') {
-                  myHeadmaster = allUData.find(u => u.id === myInviter.invited_by && u.role === 'Headmaster');
+                  myHeadmaster = allUData.find(u => String(u.id) === String(myInviter.invited_by) && u.role === 'Headmaster');
                 }
+              }
+
+              if (myHeadmaster && myHeadmaster.id) {
+                 headmasterIdRef.current = myHeadmaster.id;
               }
 
               if (myHeadmaster && myHeadmaster.subscription_expires_at) {
@@ -467,11 +492,19 @@ export default function AdminDashboard() {
             if (!matchesSearch) return false;
             if (currentUser.role === 'Creator') return true;
             if (currentUser.role === 'Headmaster') {
-              const teachers = users.filter(usr => usr.role === 'Teacher' && usr.invited_by === currentUser.id).map(t => t.id);
-              return u.invited_by === currentUser.id || teachers.includes(u.invited_by) || u.id === currentUser.id;
+              // Get all teacher IDs invited by this headmaster as strings
+              const teacherIds = users
+                .filter(usr => usr.role === 'Teacher' && String(usr.invited_by) === String(currentUser.id))
+                .map(t => String(t.id));
+              
+              const isDirectInvite = String(u.invited_by) === String(currentUser.id);
+              const isTeacherInvite = teacherIds.includes(String(u.invited_by));
+              const isSelf = String(u.id) === String(currentUser.id);
+              
+              return isDirectInvite || isTeacherInvite || isSelf;
             }
             if (currentUser.role === 'Teacher') {
-              return u.invited_by === currentUser.id || u.id === currentUser.id;
+              return String(u.invited_by) === String(currentUser.id) || String(u.id) === String(currentUser.id);
             }
             return false;
           });
@@ -1251,8 +1284,14 @@ export default function AdminDashboard() {
                                </span>
                              )}
                           </td>
-                          <td className="p-5 text-right font-bold text-slate-400 text-xs">
-                             {inv.is_used ? '-' : 'Active (24h)'}
+                          <td className="p-5 text-right font-bold text-slate-400 text-[10px] uppercase tracking-widest whitespace-nowrap">
+                             {inv.is_used ? '-' : (() => {
+                               const expiryDate = new Date(new Date(inv.created_at).getTime() + 24 * 60 * 60 * 1000);
+                               const timeLeft = expiryDate.getTime() - new Date().getTime();
+                               const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                               const minsLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                               return timeLeft > 0 ? `${hoursLeft}h ${minsLeft}m Left` : "Expired";
+                             })()}
                           </td>
                         </tr>
                       ))}

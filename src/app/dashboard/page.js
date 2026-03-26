@@ -1,11 +1,33 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [progress, setProgress] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+  const headmasterIdRef = useRef(null);
+
+  useEffect(() => {
+    const channel = supabase.channel('academy-events');
+    
+    channel.on('broadcast', { event: 'nuclear_reset' }, () => {
+      localStorage.removeItem("catUser");
+      window.location.href = "/";
+    });
+
+    channel.on('broadcast', { event: 'freeze' }, ({ payload }) => {
+       if (headmasterIdRef.current && String(payload.headmasterId) === String(headmasterIdRef.current)) {
+         setIsExpired(true);
+       }
+    });
+
+    channel.subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
   const [joinCode, setJoinCode] = useState("");
   const [allSubjects, setAllSubjects] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -48,11 +70,15 @@ export default function Dashboard() {
             let myHeadmaster = null;
             if (activeRole === 'Headmaster') myHeadmaster = userLatest || parsedUser;
             else {
-              const myInviter = allUData.find(u => u.id === (userLatest?.invited_by || parsedUser.invited_by));
+              const myInviter = allUData.find(u => String(u.id) === String(userLatest?.invited_by || parsedUser.invited_by));
               if (myInviter?.role === 'Headmaster') myHeadmaster = myInviter;
               else if (myInviter?.role === 'Teacher') {
-                myHeadmaster = allUData.find(u => u.id === myInviter.invited_by && u.role === 'Headmaster');
+                myHeadmaster = allUData.find(u => String(u.id) === String(myInviter.invited_by) && u.role === 'Headmaster');
               }
+            }
+
+            if (myHeadmaster && myHeadmaster.id) {
+               headmasterIdRef.current = myHeadmaster.id;
             }
 
             if (myHeadmaster && myHeadmaster.subscription_expires_at) {
