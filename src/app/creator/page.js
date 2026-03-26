@@ -13,24 +13,36 @@ export default function CreatorPanel() {
 
   useEffect(() => {
     const init = async () => {
-      const stored = localStorage.getItem("catUser");
-      if (!stored) { router.push("/"); return; }
-      const user = JSON.parse(stored);
-      
-      if (user.role !== 'Creator' && user.name !== 'admin_cat') {
-        alert("Wait! Only the original Creator can enter this chamber. 🐾🚪");
-        router.push("/dashboard");
-        return;
-      }
-      
-      setCurrentUser(user);
       try {
+        const stored = localStorage.getItem("catUser");
+        if (!stored) { 
+          router.push("/"); 
+          return; 
+        }
+        
+        const user = JSON.parse(stored);
+        if (!user || (user.role !== 'Creator' && user.name !== 'admin_cat')) {
+          alert("Wait! Only the original Creator can enter this chamber. 🐾🚪");
+          router.push("/dashboard");
+          return;
+        }
+        
+        setCurrentUser(user);
+
         const [invRes, uRes] = await Promise.all([
           fetch(`/api/invites?userId=${user.id}`),
           fetch("/api/users")
         ]);
-        const invData = await invRes.json();
-        const uData = await uRes.json();
+        
+        let invData = [];
+        if (invRes.ok) {
+           invData = await invRes.json();
+        }
+        
+        let uData = [];
+        if (uRes.ok) {
+           uData = await uRes.json();
+        }
         
         setInvites(Array.isArray(invData) ? invData : []);
         
@@ -49,9 +61,13 @@ export default function CreatorPanel() {
           });
           setHeadmasters(hmWithStats);
         }
-      } catch (e) { console.error(e); }
-      setLoading(false);
+      } catch (e) { 
+        console.error("Initialization failed:", e); 
+      } finally {
+        setLoading(false);
+      }
     };
+
     init();
     const syncInterval = setInterval(init, 15000);
     return () => clearInterval(syncInterval);
@@ -127,7 +143,7 @@ export default function CreatorPanel() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 relative overflow-x-hidden selection:bg-primary/30">
       {/* Background Ambience */}
-      <div className="fixed inset-0 pointer-events-none -y-10">
+      <div className="fixed inset-0 pointer-events-none top-0">
          <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
          <div className="absolute bottom-0 left-0 w-[50rem] h-[50rem] bg-indigo-500/5 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '3s' }}></div>
       </div>
@@ -163,11 +179,11 @@ export default function CreatorPanel() {
            </div>
            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Active Staff</p>
-              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + hm.teacherCount, 0)}</h2>
+              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + (hm.teacherCount || 0), 0)}</h2>
            </div>
            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] shadow-2xl md:col-span-2 bg-gradient-to-br from-primary/10 to-transparent">
               <p className="text-[10px] font-black text-primary/60 uppercase tracking-widest mb-4">Total Scholar Population</p>
-              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + hm.studentCount, 0)} <span className="text-lg opacity-40 font-normal ml-2">Registered Kittens</span></h2>
+              <h2 className="text-4xl font-black text-white">{headmasters.reduce((acc, hm) => acc + (hm.studentCount || 0), 0)} <span className="text-lg opacity-40 font-normal ml-2">Registered Kittens</span></h2>
            </div>
         </div>
 
@@ -194,7 +210,7 @@ export default function CreatorPanel() {
                              <div>
                                 <h4 className="text-xl font-black text-white mb-1 group-hover:text-primary transition-colors">{hm.name}</h4>
                                 <div className="flex items-center gap-3">
-                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {hm.id.slice(0, 8)}</span>
+                                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">School ID: {hm.id?.slice(0, 8)}</span>
                                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm ${isExpired ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
                                       {isExpired ? 'Frozen' : 'Verified'}
                                    </span>
@@ -277,7 +293,7 @@ export default function CreatorPanel() {
                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Valid 24h</p>
                         </div>
                         <button 
-                          onClick={() => { navigator.clipboard.writeText(inv.code); alert("Code Transferred! 🎫"); }}
+                          onClick={() => { if (typeof navigator !== 'undefined') { navigator.clipboard.writeText(inv.code); alert("Code Transferred! 🎫"); } }}
                           className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-slate-400 hover:text-white hover:bg-primary transition-all"
                         >
                            📋
