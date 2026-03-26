@@ -58,19 +58,18 @@ export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [invites, setInvites] = useState([]);
 
-  const [sectionConfig, setSectionConfig] = useState({ 
-    "1": ["Mercury", "Venus", "Earth", "Mars", "Jupiter"], 
-    "2": ["Section 1", "Section 2", "Section 3"],
-    "3": ["Section 1", "Section 2", "Section 3"],
-    "4": ["Section 1", "Section 2", "Section 3"],
-    "5": ["Section 1", "Section 2", "Section 3"],
-    "6": ["Section 1", "Section 2", "Section 3"] 
-  });
+  const [curriculumConfig, setCurriculumConfig] = useState([]); // Array of { name, sections: [] }
   
   const gradeOptions = [
+    ...(curriculumConfig.map(g => g.name)),
+    ...(curriculumConfig.flatMap(g => (g.sections || []).map(s => `${g.name} - ${s}`)))
+  ].length > 0 ? [
+    ...(curriculumConfig.map(g => g.name)),
+    ...(curriculumConfig.flatMap(g => (g.sections || []).map(s => `${g.name} - ${s}`)))
+  ] : [
     "Kinder 1", "Kinder 2",
     ...[1,2,3,4,5,6].flatMap(n => {
-       const sections = sectionConfig[n.toString()] || [];
+       const sections = ["Section 1", "Section 2", "Section 3"];
        return [
          `Grade ${n}`,
          ...sections.map(s => `Grade ${n} - ${s}`)
@@ -118,18 +117,39 @@ export default function AdminDashboard() {
 
          if (activeUser.role === 'Teacher') setActiveTab("subjects");
 
-          const [uRes, cRes, aRes, vRes] = await Promise.all([
+          const [uRes, cRes, aRes, vRes, gRes] = await Promise.all([
             fetch("/api/users"),
             fetch(`/api/curriculum?userId=${storedUser.id}&role=${storedUser.role}`),
             fetch("/api/announcements"),
-            fetch(`/api/invites?userId=${storedUser.id}`)
+            fetch(`/api/invites?userId=${storedUser.id}`),
+            fetch(`/api/admin/grades?headmasterId=${storedUser.id}`)
           ]);
          const userData = await uRes.json();
          const currData = await cRes.json();
          const annData = await aRes.json();
          const invData = await vRes.json();
+         const gradesData = await gRes.json();
          
          if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
+
+         // Setup curriculum structure from database
+         if (Array.isArray(gradesData) && gradesData.length > 0) {
+            const config = gradesData.map(g => ({
+              name: g.name,
+              sections: (g.school_sections || []).sort((a,b) => a.id - b.id).map(s => s.name)
+            }));
+            setCurriculumConfig(config);
+          } else if (!curriculumConfig || curriculumConfig.length === 0) {
+            // Default setup for brand new Headmasters if config is not already set
+            setCurriculumConfig([
+              { name: "Grade 1", sections: ["Mercury", "Venus", "Earth"] },
+              { name: "Grade 2", sections: ["Section 1", "Section 2"] },
+              { name: "Grade 3", sections: ["Section 1", "Section 2"] },
+              { name: "Grade 4", sections: ["Section 1", "Section 2"] },
+              { name: "Grade 5", sections: ["Section 1", "Section 2"] },
+              { name: "Grade 6", sections: ["Section 1", "Section 2"] }
+            ]);
+          }
                   
           // 2. Cascade School Freeze Check
           if (storedUser.role !== 'Creator') {
@@ -1143,52 +1163,75 @@ export default function AdminDashboard() {
              </div>
              
              <div className="space-y-8">
-                {[1, 2, 3, 4, 5, 6].map(n => (
-                  <div key={n} className="premium-card group hover:shadow-xl transition-all border-slate-100">
+                {curriculumConfig.map((item, gIdx) => (
+                  <div key={gIdx} className="premium-card group hover:shadow-xl transition-all border-slate-100">
                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div className="flex items-center gap-4">
                            <div className="w-14 h-14 bg-primary-light/20 text-primary rounded-2xl flex items-center justify-center text-2xl shadow-inner font-black">
-                              {n}
+                              {gIdx + 1}
                            </div>
-                           <div>
-                              <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-1">Grade {n}</h3>
-                              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Year Group Management</p>
+                           <div className="flex-1">
+                              <input 
+                                type="text" 
+                                className="text-xl font-black text-slate-800 bg-transparent border-none outline-none focus:ring-2 ring-primary-light/50 rounded-lg px-2"
+                                value={item.name}
+                                onChange={(e) => {
+                                  const newCfg = [...curriculumConfig];
+                                  newCfg[gIdx].name = e.target.value;
+                                  setCurriculumConfig(newCfg);
+                                }}
+                              />
+                              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Grade Level Name</p>
                            </div>
                         </div>
-                        <button 
-                          className="btn-primary !py-2.5 !px-6 !text-[10px] !rounded-xl !shadow-none hover:!shadow-lg transition-all" 
-                          onClick={() => {
-                            const newSections = [...(sectionConfig[n.toString()] || []), `Section ${(sectionConfig[n.toString()] || []).length + 1}`];
-                            setSectionConfig({ ...sectionConfig, [n]: newSections });
-                          }}
-                        >
-                          + Add Section
-                        </button>
+                        <div className="flex gap-3">
+                          <button 
+                            className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                            onClick={() => {
+                              if (confirm(`Remove ${item.name}? All its sections will be lost.`)) {
+                                setCurriculumConfig(curriculumConfig.filter((_, i) => i !== gIdx));
+                              }
+                            }}
+                          >
+                             Remove Grade
+                          </button>
+                          <button 
+                            className="btn-primary !py-2.5 !px-6 !text-[10px] !rounded-xl !shadow-none hover:!shadow-lg transition-all" 
+                            onClick={() => {
+                              const newCfg = [...curriculumConfig];
+                              newCfg[gIdx].sections = [...(newCfg[gIdx].sections || []), `Section ${(newCfg[gIdx].sections || []).length + 1}`];
+                              setCurriculumConfig(newCfg);
+                            }}
+                          >
+                            + Add Section
+                          </button>
+                        </div>
                      </div>
 
                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {(sectionConfig[n.toString()] || []).map((s, idx) => (
+                        {(item.sections || []).map((s, idx) => (
                           <div key={idx} className="relative group/input">
                             <input 
                               type="text" 
                               className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:ring-2 ring-primary-light/50 outline-none transition-all"
                               value={s}
                               onChange={(e) => {
-                                const newSections = [...sectionConfig[n.toString()]];
-                                newSections[idx] = e.target.value;
-                                setSectionConfig({ ...sectionConfig, [n]: newSections });
+                                const newCfg = [...curriculumConfig];
+                                newCfg[gIdx].sections[idx] = e.target.value;
+                                setCurriculumConfig(newCfg);
                               }}
                             />
                             <button 
                               onClick={() => {
-                                const newSections = sectionConfig[n.toString()].filter((_, i) => i !== idx);
-                                setSectionConfig({ ...sectionConfig, [n]: newSections });
+                                const newCfg = [...curriculumConfig];
+                                newCfg[gIdx].sections = newCfg[gIdx].sections.filter((_, i) => i !== idx);
+                                setCurriculumConfig(newCfg);
                               }}
                               className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group/input group-hover/input:opacity-100"
                             >×</button>
                           </div>
                         ))}
-                        {(sectionConfig[n.toString()] || []).length === 0 && (
+                        {(item.sections || []).length === 0 && (
                            <div className="col-span-full py-6 text-center text-slate-300 font-bold italic border-2 border-dashed border-slate-100 rounded-2xl">
                               No sections configured for this grade.
                            </div>
@@ -1196,6 +1239,13 @@ export default function AdminDashboard() {
                      </div>
                   </div>
                 ))}
+
+                <button 
+                  className="w-full py-6 border-2 border-dashed border-primary-light text-primary font-black uppercase tracking-widest rounded-[2rem] hover:bg-primary-light/5 transition-all"
+                  onClick={() => setCurriculumConfig([...curriculumConfig, { name: "New Grade level", sections: ["Section 1"] }])}
+                >
+                  + Add New Grade Level
+                </button>
              </div>
              
              <div className="mt-12 glass-panel border-dashed border-2 border-primary-light/30 !p-8">
@@ -1210,8 +1260,19 @@ export default function AdminDashboard() {
                 </div>
              </div>
 
-             <button className="btn-primary !py-5 mt-10 w-full shadow-2xl shadow-primary/20 flex items-center justify-center gap-3" onClick={() => {
-                alert("Educational structure synchronized! 🎉 Changes have been pushed to all registration forms.");
+             <button className="btn-primary !py-5 mt-10 w-full shadow-2xl shadow-primary/20 flex items-center justify-center gap-3" onClick={async () => {
+                try {
+                  const res = await fetch("/api/admin/grades", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ headmasterId: currentUser.id, structure: curriculumConfig })
+                  });
+                  if (res.ok) {
+                    alert("Educational structure synchronized! 🎉 Changes have been pushed to all registration forms.");
+                  } else {
+                    alert("Sync failed! 😿");
+                  }
+                } catch (e) { alert("Failed: " + e.message); }
              }}>
                 Authorize Structure Update 🚀
              </button>
