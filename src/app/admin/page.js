@@ -132,7 +132,7 @@ export default function AdminDashboard() {
          
          if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
 
-         // Setup curriculum structure from database
+         // Setup curriculum structure
          if (Array.isArray(gradesData) && gradesData.length > 0) {
             const config = gradesData.map(g => ({
               name: g.name,
@@ -140,15 +140,8 @@ export default function AdminDashboard() {
             }));
             setCurriculumConfig(config);
           } else if (!curriculumConfig || curriculumConfig.length === 0) {
-            // Default setup for brand new Headmasters if config is not already set
-            setCurriculumConfig([
-              { name: "Grade 1", sections: ["Mercury", "Venus", "Earth"] },
-              { name: "Grade 2", sections: ["Section 1", "Section 2"] },
-              { name: "Grade 3", sections: ["Section 1", "Section 2"] },
-              { name: "Grade 4", sections: ["Section 1", "Section 2"] },
-              { name: "Grade 5", sections: ["Section 1", "Section 2"] },
-              { name: "Grade 6", sections: ["Section 1", "Section 2"] }
-            ]);
+            // Start with a clean slate for new Headmasters
+            setCurriculumConfig([]);
           }
                   
           // 2. Cascade School Freeze Check
@@ -1201,7 +1194,16 @@ export default function AdminDashboard() {
              </div>
              
              <div className="space-y-8">
-                {curriculumConfig.map((item, gIdx) => (
+                {curriculumConfig.length === 0 ? (
+                   <div className="premium-card !p-12 text-center animate-fade-in border-slate-100 bg-slate-50/50">
+                      <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center text-4xl mx-auto mb-6">🏫</div>
+                      <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Your school structure is a blank canvas! ✨</h3>
+                      <p className="text-slate-500 max-w-sm mx-auto font-medium text-sm leading-relaxed mb-8">
+                         Every school is unique. Start by adding your first Grade Level below (like "Grade 1", "Masters", or "Kinder") to begin organizing your students.
+                      </p>
+                      <div className="h-px bg-slate-200 w-24 mx-auto mb-8"></div>
+                   </div>
+                 ) : curriculumConfig.map((item, gIdx) => (
                   <div key={gIdx} className="premium-card group hover:shadow-xl transition-all border-slate-100">
                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div className="flex items-center gap-4">
