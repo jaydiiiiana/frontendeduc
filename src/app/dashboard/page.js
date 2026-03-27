@@ -120,9 +120,8 @@ export default function Dashboard() {
         });
         const annRes = await fetch(`/api/announcements?grade=${parsedUser.grade}`);
         const annData = await annRes.json();
-        if (Array.isArray(annData)) setAnnouncements(annData);
-        
-        setAllSubjects(subjects);
+        if (Array.isArray(annData) && JSON.stringify(announcements) !== JSON.stringify(annData)) setAnnouncements(annData);
+        if (JSON.stringify(allSubjects) !== JSON.stringify(subjects)) setAllSubjects(subjects);
 
         const notifs = [];
         annData.slice(0, 5).forEach(a => {
@@ -136,7 +135,8 @@ export default function Dashboard() {
              }
           });
         });
-        setNotifications(notifs.sort((a,b) => new Date(b.date) - new Date(a.date)));
+        const sortedNotifs = notifs.sort((a,b) => new Date(b.date) - new Date(a.date));
+        if (JSON.stringify(notifications) !== JSON.stringify(sortedNotifs)) setNotifications(sortedNotifs);
 
       } catch (e) { 
         console.error("Data fetch failed", e); 

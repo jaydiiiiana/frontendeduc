@@ -42,7 +42,7 @@ export default function ScholarLessonPage() {
             if (!baseCurr[g]) baseCurr[g] = [];
             baseCurr[g] = [...baseCurr[g], ...currData[g]];
           });
-          setLocalCurriculum(baseCurr);
+          if (JSON.stringify(localCurriculum) !== JSON.stringify(baseCurr)) setLocalCurriculum(baseCurr);
         }
       } catch (e) {
         console.error("Failed to sync curriculum", e);
@@ -100,11 +100,15 @@ export default function ScholarLessonPage() {
   }, [lesson, grade, subjectTitle, lessonId]);
 
   if (!lesson) return (
-    <div className="min-h-screen flex items-center justify-center p-6 text-center">
-      <div>
-        <div className="text-6xl mb-4">😿</div>
-        <h2 className="text-2xl font-black text-slate-800">Module Unreachable</h2>
-        <button className="btn-secondary mt-6" onClick={() => router.push(`/lessons/${grade}/${subjectTitle}`)}>Back to Subjects</button>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-slate-50">
+      <div className="premium-card max-w-md w-full !p-12 shadow-2xl border-none">
+        <div className="text-8xl mb-6">😿</div>
+        <h2 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Module Unreachable</h2>
+        <p className="text-slate-500 font-medium leading-relaxed mb-8">
+          The scroll for lesson <strong className="text-primary">#{lessonId}</strong> ({subjectTitle}) is missing from your curriculum. <br />
+          <span className="text-[10px] font-black uppercase text-slate-300 tracking-widest mt-4 block">Please ensure you are enrolled in this subject.</span>
+        </p>
+        <button className="btn-primary w-full shadow-xl shadow-primary/20" onClick={() => router.push(`/dashboard`)}>Back to Dashboard 🏠</button>
       </div>
     </div>
   );
