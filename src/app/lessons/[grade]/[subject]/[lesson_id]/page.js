@@ -33,7 +33,8 @@ export default function ScholarLessonPage() {
       setUser(JSON.parse(storedUser));
       
       try {
-        const res = await fetch("/api/curriculum");
+        const u = JSON.parse(storedUser);
+        const res = await fetch(`/api/curriculum?userId=${u.id}&role=${u.role}`);
         if (res.ok) {
           const currData = await res.json();
           const baseCurr = { ...curriculum };
@@ -124,9 +125,17 @@ export default function ScholarLessonPage() {
       setFinished(true);
       saveProgress();
       const totalExp = (user.exp || 0) + score;
-      const updatedUser = { ...user, exp: totalExp, level: calculateLevel(totalExp) };
+      const newLevel = calculateLevel(totalExp);
+      const updatedUser = { ...user, exp: totalExp, level: newLevel };
       localStorage.setItem("catUser", JSON.stringify(updatedUser));
       setUser(updatedUser);
+      
+      // Sync to database
+      fetch(`/api/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requesterId: user.id, exp: totalExp, level: newLevel })
+      }).catch(e => console.error("Stats sync failed", e));
     }
   };
 
@@ -332,9 +341,17 @@ export default function ScholarLessonPage() {
                     saveProgress();
                     // Award Reading EXP (10 points)
                     const totalExp = (user.exp || 0) + 10;
-                    const updatedUser = { ...user, exp: totalExp, level: calculateLevel(totalExp) };
+                    const newLevel = calculateLevel(totalExp);
+                    const updatedUser = { ...user, exp: totalExp, level: newLevel };
                     localStorage.setItem("catUser", JSON.stringify(updatedUser));
                     setUser(updatedUser);
+
+                    // Sync to database
+                    fetch(`/api/users/${user.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ requesterId: user.id, exp: totalExp, level: newLevel })
+                    }).catch(e => console.error("Stats sync failed", e));
                   }
                   if (lessonIdx < lessonsInSubject.length - 1) goToLesson(lessonsInSubject[lessonIdx+1].id);
                   else router.push(`/lessons/${grade}/${subjectTitle}`);

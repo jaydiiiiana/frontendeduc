@@ -57,6 +57,9 @@ export default function AdminDashboard() {
   const [newAnnouncement, setNewAnnouncement] = useState({ content: "", targetGrade: "" });
   const [announcements, setAnnouncements] = useState([]);
   const [invites, setInvites] = useState([]);
+  const [stories, setStories] = useState([]);
+  const [ratingData, setRatingData] = useState({ average: 0, count: 0 });
+  const [newStory, setNewStory] = useState("");
 
   const [curriculumConfig, setCurriculumConfig] = useState([]); // Array of { name, sections: [] }
   
@@ -114,17 +117,21 @@ export default function AdminDashboard() {
         }
       }
 
-      const [uRes, cRes, aRes, vRes] = await Promise.all([
+      const [uRes, cRes, aRes, vRes, sRes, rRes] = await Promise.all([
         fetch("/api/users"),
         fetch(`/api/curriculum?userId=${storedUser.id}&role=${storedUser.role}`),
         fetch("/api/announcements"),
-        fetch(`/api/invites?userId=${storedUser.id}`)
+        fetch(`/api/invites?userId=${storedUser.id}`),
+        fetch("/api/public/success-stories"),
+        fetch("/api/public/ratings")
       ]);
       
       const userData = await uRes.json();
       const currData = await cRes.json();
       const annData = await aRes.json();
       const invData = await vRes.json();
+      const storyData = await sRes.json();
+      const ratData = await rRes.json();
       
       if (!userData.error) setUsers(Array.isArray(userData) ? userData : []);
 
@@ -173,6 +180,8 @@ export default function AdminDashboard() {
       if (!currData.error) setCustomCurriculum(currData);
       if (Array.isArray(annData)) setAnnouncements(annData);
       if (Array.isArray(invData)) setInvites(invData);
+      if (Array.isArray(storyData)) setStories(storyData);
+      if (ratData && !ratData.error) setRatingData(ratData);
 
       // 4. Initial Tab Setup (ONLY on first load)
       if (forceUpdateCurriculum) {
@@ -526,12 +535,20 @@ export default function AdminDashboard() {
                       Subjects
                   </button>
                   {currentUser?.role === 'Headmaster' && (
-                    <button 
-                        className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "setup" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
-                        onClick={() => { setSelectedSubject(null); setActiveTab("setup"); }}
-                    >
-                        Setup
-                    </button>
+                    <>
+                        <button 
+                            className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "setup" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
+                            onClick={() => { setSelectedSubject(null); setActiveTab("setup"); }}
+                        >
+                            Setup
+                        </button>
+                        <button 
+                            className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "alumni" ? "bg-primary text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-primary"}`}
+                            onClick={() => { setSelectedSubject(null); setActiveTab("alumni"); }}
+                        >
+                            Alumni
+                        </button>
+                    </>
                   )}
                   <button 
                       className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === "add" ? "bg-accent text-white shadow-lg active:scale-95" : "text-slate-500 hover:text-accent"}`}
@@ -1049,7 +1066,14 @@ export default function AdminDashboard() {
                           <select 
                             className="input-field !py-4" 
                             value={newContent.subjectTitle} 
-                            onChange={(e) => setNewContent({...newContent, subjectTitle: e.target.value})}
+                            onChange={(e) => {
+                              const title = e.target.value;
+                              let foundGrade = newContent.grade;
+                              Object.entries(customCurriculum).forEach(([g, subs]) => {
+                                if (Array.isArray(subs) && subs.some(s => s.title === title)) foundGrade = g;
+                              });
+                              setNewContent({...newContent, subjectTitle: title, grade: foundGrade});
+                            }}
                           >
                              <option value="">-- Choose Subject --</option>
                              {Object.entries(customCurriculum).map(([g, subs]) => 
@@ -1440,6 +1464,104 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+             </div>
+          </div>
+        )}
+        {/* ========== ALUMNI TAB (Headmaster) ========== */}
+        {activeTab === "alumni" && (
+          <div className="animate-fade-in max-w-4xl mx-auto pb-20">
+             <div className="mb-10 text-center">
+                <h2 className="text-4xl font-black text-slate-800 tracking-tight mb-2">Alumni Success 🎓</h2>
+                <p className="text-slate-500 font-medium mb-4">Voices and ratings from our esteemed academic community.</p>
+                
+                {/* Rating Display */}
+                <div className="flex flex-col items-center gap-2">
+                   <div className="flex gap-1 text-3xl text-amber-400">
+                      {[1, 2, 3, 4, 5].map(s => (
+                         <span key={s} className={s <= ratingData.average ? "opacity-100" : "opacity-30"}>★</span>
+                      ))}
+                   </div>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{ratingData.average || 0} / 5 ({ratingData.count || 0} Scholar Ratings)</p>
+                   
+                   <div className="mt-4 flex flex-col items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-wider">Submit Your Academic Rating:</p>
+                      <div className="flex gap-2">
+                         {[1, 2, 3, 4, 5].map(s => (
+                            <button 
+                               key={s} 
+                               onClick={async () => {
+                                  const res = await fetch("/api/ratings", {
+                                     method: "POST",
+                                     headers: { "Content-Type": "application/json" },
+                                     body: JSON.stringify({ userId: currentUser.id, rating: s })
+                                  });
+                                  if (res.ok) fetchAllData(false);
+                                  alert("Rating submitted! ⭐");
+                               }}
+                               className="text-2xl hover:scale-125 transition-transform origin-center"
+                            >
+                               ★
+                            </button>
+                         ))}
+                      </div>
+                   </div>
+                </div>
+             </div>
+
+             {/* Post Story */}
+             <div className="premium-card mb-12 border-primary/20 bg-primary/[0.02] !p-8">
+                <h4 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                   Document a Success Story <span className="text-2xl">📖</span>
+                </h4>
+                <textarea 
+                   className="w-full p-6 rounded-3xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-medium text-slate-600 mb-4 min-h-[150px] bg-white shadow-inner"
+                   placeholder="Tell us about a learning breakthrough..."
+                   value={newStory}
+                   onChange={(e) => setNewStory(e.target.value)}
+                ></textarea>
+                <button 
+                   onClick={async () => {
+                      if (!newStory) return;
+                      const res = await fetch("/api/success-stories", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json" },
+                         body: JSON.stringify({ content: newStory, authorId: currentUser.id })
+                      });
+                      if (res.ok) {
+                         setNewStory("");
+                         fetchAllData(false);
+                         alert("Story posted to Landing Page! 🎉");
+                      }
+                   }}
+                   className="btn-primary !py-4 !px-10 shadow-xl shadow-primary/20 font-black text-xs uppercase tracking-widest"
+                >
+                   Post Story 🎉
+                </button>
+             </div>
+
+             {/* Stories List */}
+             <div className="space-y-6">
+                <div className="flex items-center gap-4 px-2">
+                   <h3 className="text-xl font-black text-slate-700 tracking-tight">Recent Success Stories</h3>
+                   <div className="flex-1 h-px bg-slate-200"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+                  {stories.map((s, i) => (
+                    <div key={i} className="premium-card !p-6 border-slate-100 hover:border-primary/20 transition-all flex flex-col justify-between">
+                       <p className="text-slate-600 font-medium leading-relaxed mb-6 italic text-sm">"{s.content}"</p>
+                       <div className="flex justify-between items-center border-t border-slate-50 pt-4">
+                          <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center font-black text-[10px] text-primary">
+                                {s.users?.name?.charAt(0) || '🎓'}
+                             </div>
+                             <p className="text-[10px] font-black text-slate-800 truncate max-w-[100px]">{s.users?.name || "Headmaster"}</p>
+                          </div>
+                          <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{new Date(s.created_at).toLocaleDateString()}</span>
+                       </div>
+                    </div>
+                  ))}
+                  {stories.length === 0 && <div className="md:col-span-2 py-20 text-center opacity-30 text-xl font-bold italic tracking-wider">No success stories yet...</div>}
                 </div>
              </div>
           </div>

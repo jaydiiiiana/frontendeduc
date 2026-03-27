@@ -62,10 +62,10 @@ export default function Dashboard() {
       try {
         const userRes = await fetch(`/api/users/${parsedUser.id}`);
         const userLatest = await userRes.json();
-        if (userLatest && userLatest.role && userLatest.role !== parsedUser.role) {
-           const updated = { ...parsedUser, role: userLatest.role };
-           localStorage.setItem("catUser", JSON.stringify(updated));
-           setUser(updated);
+        if (userLatest && userLatest.id) {
+          const updated = { ...parsedUser, ...userLatest };
+          localStorage.setItem("catUser", JSON.stringify(updated));
+          setUser(updated);
         }
 
         const activeRole = (userLatest && userLatest.role) || parsedUser.role || 'Student';

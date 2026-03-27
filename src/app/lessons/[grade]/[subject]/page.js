@@ -21,7 +21,8 @@ export default function SubjectHome() {
       setUser(JSON.parse(storedUser));
       
       try {
-        const res = await fetch("/api/curriculum");
+        const u = JSON.parse(storedUser);
+        const res = await fetch(`/api/curriculum?userId=${u.id}&role=${u.role}`);
         if (res.ok) {
           const currData = await res.json();
           const baseCurr = { ...curriculum };
