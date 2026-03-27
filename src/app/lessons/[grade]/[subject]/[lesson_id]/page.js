@@ -18,6 +18,7 @@ export default function ScholarLessonPage() {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const grade = decodeURIComponent(params.grade);
   const subjectTitle = decodeURIComponent(params.subject);
@@ -34,6 +35,35 @@ export default function ScholarLessonPage() {
       
       try {
         const u = JSON.parse(storedUser);
+        
+        // 1. Direct Fetch for Lesson Data (Source of Truth)
+        const lessonRes = await fetch(`/api/lessons/${lessonId}?userId=${u.id}&role=${u.role}`);
+        if (lessonRes.ok) {
+           const lessonData = await lessonRes.json();
+           // Update local curriculum with this lesson's context
+           const baseCurr = { ...localCurriculum };
+           const g = lessonData.subjects.grade;
+           if (!baseCurr[g]) baseCurr[g] = [];
+           const existingIdx = baseCurr[g].findIndex(s => s.id === lessonData.subject_id);
+           if (existingIdx >= 0) {
+             const existingLessons = baseCurr[g][existingIdx].lessons || [];
+             if (!existingLessons.some(l => l.id === lessonData.id)) {
+               baseCurr[g][existingIdx].lessons = [...existingLessons, lessonData];
+             }
+           } else {
+             baseCurr[g].push({
+               ...lessonData.subjects,
+               id: lessonData.subject_id,
+               lessons: [lessonData]
+             });
+           }
+           setLocalCurriculum(baseCurr);
+        } else {
+           const errData = await lessonRes.json();
+           setErrorMsg(errData.error || "Module Access Restricted");
+        }
+
+        // 2. Sync full curriculum
         const res = await fetch(`/api/curriculum?userId=${u.id}&role=${u.role}`);
         if (res.ok) {
           const currData = await res.json();
@@ -105,7 +135,7 @@ export default function ScholarLessonPage() {
         <div className="text-8xl mb-6">😿</div>
         <h2 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Module Unreachable</h2>
         <p className="text-slate-500 font-medium leading-relaxed mb-8">
-          The scroll for lesson <strong className="text-primary">#{lessonId}</strong> ({subjectTitle}) is missing from your curriculum. <br />
+          {errorMsg ? errorMsg : `The scroll for lesson #${lessonId} (${subjectTitle}) is missing from your curriculum.`} <br />
           <span className="text-[10px] font-black uppercase text-slate-300 tracking-widest mt-4 block">Please ensure you are enrolled in this subject.</span>
         </p>
         <button className="btn-primary w-full shadow-xl shadow-primary/20" onClick={() => router.push(`/dashboard`)}>Back to Dashboard 🏠</button>
