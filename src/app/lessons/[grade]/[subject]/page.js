@@ -52,7 +52,19 @@ export default function SubjectHome() {
     </div>
   );
 
-  const subjectData = localCurriculum[grade]?.find((s) => s.title === subjectTitle);
+  // Normalize subject title for better matching (Math-101 vs Math 101)
+  const normalizedSubjectTitle = subjectTitle.replace(/-/g, ' ');
+
+  let subjectData = (localCurriculum[grade] || []).find((s) => s.title === subjectTitle) ||
+                    (localCurriculum[grade] || []).find((s) => s.title === normalizedSubjectTitle);
+
+  // Fallback: search ALL grades if not found 
+  if (!subjectData) {
+    Object.keys(localCurriculum).forEach(g => {
+       const found = localCurriculum[g].find(s => s.title === subjectTitle || s.title === normalizedSubjectTitle);
+       if (found) subjectData = found;
+    });
+  }
 
   if (!subjectData) return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">

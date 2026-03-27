@@ -58,20 +58,35 @@ export default function ScholarLessonPage() {
   );
 
   const subjectsInGrade = localCurriculum[grade] || [];
+  
+  // Normalize subject title for better matching (Math-101 vs Math 101)
+  const normalizedSubjectTitle = subjectTitle.replace(/-/g, ' ');
+
   let subjectData = subjectsInGrade.find(s => s.lessons?.some(l => String(l.id) === String(lessonId))) || 
-                    subjectsInGrade.find(s => s.title === subjectTitle);
+                    subjectsInGrade.find(s => s.title === subjectTitle) ||
+                    subjectsInGrade.find(s => s.title === normalizedSubjectTitle);
 
   // Fallback: search ALL grades if not found (in case of grade mismatch)
   if (!subjectData) {
+    console.log(`[LessonLookup] Not found in grade ${grade}. Searching all grades...`);
     Object.keys(localCurriculum).forEach(g => {
        const found = localCurriculum[g].find(s => s.lessons?.some(l => String(l.id) === String(lessonId)));
-       if (found) subjectData = found;
+       if (found) {
+         console.log(`[LessonLookup] Found in grade ${g}!`);
+         subjectData = found;
+       }
     });
+  }
+
+  if (subjectData) {
+    console.log(`[LessonLookup] Match found: ${subjectData.title} (ID: ${subjectData.id})`);
+  } else {
+    console.warn(`[LessonLookup] FAILED to find subject for lessonId: ${lessonId}, title: ${subjectTitle}`);
   }
   
   const lessonsInSubject = subjectData?.lessons || [];
-  const lesson = lessonsInSubject.find(l => l.id == lessonId);
-  const lessonIdx = lessonsInSubject.findIndex(l => l.id == lessonId);
+  const lesson = lessonsInSubject.find(l => String(l.id) === String(lessonId));
+  const lessonIdx = lessonsInSubject.findIndex(l => String(l.id) === String(lessonId));
 
   useEffect(() => {
     if (lesson && lesson.type === "quiz") {

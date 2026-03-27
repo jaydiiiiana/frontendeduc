@@ -850,7 +850,7 @@ export default function AdminDashboard() {
                            <span className="text-sm font-black text-indigo-500 bg-white px-3 py-1 rounded-lg shadow-sm border border-slate-100">{s.code}</span>
                         </div>
 
-                        {(currentUser.role === 'Creator' || s.created_by == currentUser.id) ? (
+                        {(currentUser.role === 'Creator' || !s.created_by || String(s.created_by) === String(currentUser.id)) ? (
                           <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest bg-white border border-slate-100 text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
                             Manage Subject →
                           </button>
@@ -900,7 +900,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-6">
-                           {(currentUser.role === 'Creator' || selectedSubject.created_by == currentUser.id) ? (
+                           {(currentUser.role === 'Creator' || !selectedSubject.created_by || String(selectedSubject.created_by) === String(currentUser.id)) ? (
                              <>
                                <button 
                                   className={`py-3 rounded-xl font-black text-[10px] uppercase tracking-widest backdrop-blur-md transition-all active:scale-95 ${selectedSubject.is_public ? 'bg-white text-amber-600 hover:bg-amber-50' : 'bg-white text-primary hover:bg-slate-50'}`}
@@ -917,7 +917,7 @@ export default function AdminDashboard() {
                              </>
                            ) : (
                              <div className="col-span-2 py-3 bg-white/20 rounded-xl font-extrabold text-[10px] uppercase tracking-widest">
-                                Creator Only Access 🛡️
+                                Read Only Mode 🛡️
                              </div>
                            )}
                         </div>
@@ -975,8 +975,16 @@ export default function AdminDashboard() {
                              </div>
                              <div className="flex items-center gap-2 opacity-0 group-hover/lesson:opacity-100 transition-opacity">
                                 <button 
+                                  className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-400 hover:bg-primary-light hover:text-white transition-colors flex items-center justify-center text-sm"
+                                  onClick={() => window.open(`/lessons/${selectedSubject.grade}/${selectedSubject.title}/${l.id}`, '_blank')}
+                                  title="Preview Lesson"
+                                >
+                                   👁️
+                                </button>
+                                <button 
                                   className="w-10 h-10 rounded-xl bg-white border border-red-100 text-red-400 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center text-sm"
                                   onClick={() => handleDeleteLesson(l.id)}
+                                  title="Delete Lesson"
                                 >
                                    🗑️
                                 </button>
