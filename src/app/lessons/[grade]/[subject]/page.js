@@ -8,8 +8,8 @@ export default function SubjectHome() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [localCurriculum, setLocalCurriculum] = useState(curriculum);
-  const grade = decodeURIComponent(params.grade);
-  const subjectTitle = decodeURIComponent(params.subject);
+  const grade = params.grade ? decodeURIComponent(params.grade) : "";
+  const subjectTitle = params.subject ? decodeURIComponent(params.subject) : "";
 
   useEffect(() => {
     const fetchData = async () => {

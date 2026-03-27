@@ -14,8 +14,8 @@ export default function QuizPage() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  const grade = decodeURIComponent(params.grade);
-  const subjectTitle = decodeURIComponent(params.subject);
+  const grade = params.grade ? decodeURIComponent(params.grade) : "";
+  const subjectTitle = params.subject ? decodeURIComponent(params.subject) : "";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("catUser");
@@ -34,7 +34,7 @@ export default function QuizPage() {
   const allGradeData = [...staticGradeData, ...customGradeData];
 
   const subjectData = allGradeData.find((s) => s.title === subjectTitle);
-  const questions = subjectData?.subjects[0]?.questions || [];
+  const questions = subjectData?.subjects?.[0]?.questions || [];
 
   if (questions.length === 0) return (
     <div className="flex-center" style={{ height: "100vh", flexDirection: "column", gap: "2rem" }}>

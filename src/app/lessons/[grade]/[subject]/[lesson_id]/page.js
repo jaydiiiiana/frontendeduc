@@ -20,8 +20,8 @@ export default function ScholarLessonPage() {
   const [alreadyDone, setAlreadyDone] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const grade = decodeURIComponent(params.grade);
-  const subjectTitle = decodeURIComponent(params.subject);
+  const grade = params.grade ? decodeURIComponent(params.grade) : "";
+  const subjectTitle = params.subject ? decodeURIComponent(params.subject) : "";
   const lessonId = params.lesson_id;
 
   useEffect(() => {
@@ -174,7 +174,8 @@ export default function ScholarLessonPage() {
   };
 
   const handleNextInQuiz = () => {
-    if (qIndex < lesson.questions.length - 1) {
+    const questions = lesson.questions || [];
+    if (qIndex < questions.length - 1) {
       setQIndex(qIndex + 1);
       setSelected(null);
       setIsAnswered(false);
@@ -339,12 +340,12 @@ export default function ScholarLessonPage() {
                 ) : (
                   <div className="max-w-2xl mx-auto">
                     <header className="mb-12 text-center">
-                       <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Question {qIndex + 1} of {lesson.questions.length}</p>
-                       <h3 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-snug">{lesson.questions[qIndex].q}</h3>
+                       <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Question {qIndex + 1} of {lesson.questions?.length || 0}</p>
+                       <h3 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-snug">{lesson.questions?.[qIndex]?.q || "Processing Analysis..."}</h3>
                     </header>
 
                     <div className="grid grid-cols-1 gap-4">
-                      {lesson.questions[qIndex].options.map((opt, i) => {
+                      {(lesson.questions?.[qIndex]?.options || []).map((opt, i) => {
                         const isCorrect = opt === correctAnswer;
                         const isSelected = selected === opt;
                         const stateClass = isAnswered 
