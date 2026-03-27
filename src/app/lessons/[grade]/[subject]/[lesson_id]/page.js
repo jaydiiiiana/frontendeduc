@@ -24,6 +24,8 @@ export default function ScholarLessonPage() {
   const subjectTitle = params.subject ? decodeURIComponent(params.subject) : "";
   const lessonId = params.lesson_id;
 
+  const paramsString = JSON.stringify(params);
+
   useEffect(() => {
     const fetchData = async () => {
       const storedUser = localStorage.getItem("catUser");
@@ -31,55 +33,60 @@ export default function ScholarLessonPage() {
         router.push("/");
         return;
       }
-      setUser(JSON.parse(storedUser));
+      const pUser = JSON.parse(storedUser);
+      setUser(pUser);
       
       try {
-        const u = JSON.parse(storedUser);
-        
+        let updatedCurriculum = { ...curriculum };
+
         // 1. Direct Fetch for Lesson Data (Source of Truth)
-        const lessonRes = await fetch(`/api/lessons/${lessonId}?userId=${u.id}&role=${u.role}`);
+        const lessonRes = await fetch(`/api/lessons/${lessonId}?userId=${pUser.id}&role=${pUser.role}`);
         if (lessonRes.ok) {
            const lessonData = await lessonRes.json();
-           // Update local curriculum with this lesson's context
-           const baseCurr = { ...localCurriculum };
            const g = lessonData.subjects.grade;
-           if (!baseCurr[g]) baseCurr[g] = [];
-           const existingIdx = baseCurr[g].findIndex(s => s.id === lessonData.subject_id);
+           if (!updatedCurriculum[g]) updatedCurriculum[g] = [];
+           const existingIdx = updatedCurriculum[g].findIndex(s => s.id === lessonData.subject_id);
            if (existingIdx >= 0) {
-             const existingLessons = baseCurr[g][existingIdx].lessons || [];
+             const existingLessons = updatedCurriculum[g][existingIdx].lessons || [];
              if (!existingLessons.some(l => l.id === lessonData.id)) {
-               baseCurr[g][existingIdx].lessons = [...existingLessons, lessonData];
+               updatedCurriculum[g][existingIdx].lessons = [...existingLessons, lessonData];
              }
            } else {
-             baseCurr[g].push({
+             updatedCurriculum[g].push({
                ...lessonData.subjects,
                id: lessonData.subject_id,
                lessons: [lessonData]
              });
            }
-           setLocalCurriculum(baseCurr);
         } else {
            const errData = await lessonRes.json();
            setErrorMsg(errData.error || "Module Access Restricted");
         }
 
         // 2. Sync full curriculum
-        const res = await fetch(`/api/curriculum?userId=${u.id}&role=${u.role}`);
+        const res = await fetch(`/api/curriculum?userId=${pUser.id}&role=${pUser.role}`);
         if (res.ok) {
           const currData = await res.json();
-          const baseCurr = { ...curriculum };
           Object.keys(currData).forEach(g => {
-            if (!baseCurr[g]) baseCurr[g] = [];
-            baseCurr[g] = [...baseCurr[g], ...currData[g]];
+            if (!updatedCurriculum[g]) updatedCurriculum[g] = [];
+            currData[g].forEach(subj => {
+               const existing = updatedCurriculum[g].find(s => s.id === subj.id);
+               if (existing) {
+                  existing.lessons = Array.from(new Map([...(existing.lessons || []), ...(subj.lessons || [])].map(l => [l.id, l])).values());
+               } else {
+                  updatedCurriculum[g].push(subj);
+               }
+            });
           });
-          if (JSON.stringify(localCurriculum) !== JSON.stringify(baseCurr)) setLocalCurriculum(baseCurr);
         }
+        
+        setLocalCurriculum(updatedCurriculum);
       } catch (e) {
         console.error("Failed to sync curriculum", e);
       }
     };
     fetchData();
-  }, [router, grade]);
+  }, [paramsString, router]);
 
   if (!user) return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -87,36 +94,27 @@ export default function ScholarLessonPage() {
     </div>
   );
 
-  const subjectsInGrade = localCurriculum[grade] || [];
-  
-  // Normalize subject title for better matching (Math-101 vs Math 101)
-  const normalizedSubjectTitle = subjectTitle.replace(/-/g, ' ');
+  const { subjectData, lesson, lessonsInSubject, lessonIdx } = React.useMemo(() => {
+    const subjectsInGrade = localCurriculum[grade] || [];
+    const normalizedTarget = subjectTitle.replace(/-/g, ' ');
+    
+    let foundSubject = subjectsInGrade.find(s => s.lessons?.some(l => String(l.id) === String(lessonId))) || 
+                       subjectsInGrade.find(s => s.title === subjectTitle) ||
+                       subjectsInGrade.find(s => s.title === normalizedTarget);
 
-  let subjectData = subjectsInGrade.find(s => s.lessons?.some(l => String(l.id) === String(lessonId))) || 
-                    subjectsInGrade.find(s => s.title === subjectTitle) ||
-                    subjectsInGrade.find(s => s.title === normalizedSubjectTitle);
+    if (!foundSubject) {
+      Object.keys(localCurriculum).forEach(g => {
+         const found = localCurriculum[g].find(s => s.lessons?.some(l => String(l.id) === String(lessonId)));
+         if (found) foundSubject = found;
+      });
+    }
 
-  // Fallback: search ALL grades if not found (in case of grade mismatch)
-  if (!subjectData) {
-    console.log(`[LessonLookup] Not found in grade ${grade}. Searching all grades...`);
-    Object.keys(localCurriculum).forEach(g => {
-       const found = localCurriculum[g].find(s => s.lessons?.some(l => String(l.id) === String(lessonId)));
-       if (found) {
-         console.log(`[LessonLookup] Found in grade ${g}!`);
-         subjectData = found;
-       }
-    });
-  }
+    const lessons = foundSubject?.lessons || [];
+    const foundLesson = lessons.find(l => String(l.id) === String(lessonId));
+    const idx = lessons.findIndex(l => String(l.id) === String(lessonId));
 
-  if (subjectData) {
-    console.log(`[LessonLookup] Match found: ${subjectData.title} (ID: ${subjectData.id})`);
-  } else {
-    console.warn(`[LessonLookup] FAILED to find subject for lessonId: ${lessonId}, title: ${subjectTitle}`);
-  }
-  
-  const lessonsInSubject = subjectData?.lessons || [];
-  const lesson = lessonsInSubject.find(l => String(l.id) === String(lessonId));
-  const lessonIdx = lessonsInSubject.findIndex(l => String(l.id) === String(lessonId));
+    return { subjectData: foundSubject, lesson: foundLesson, lessonsInSubject: lessons, lessonIdx: idx };
+  }, [localCurriculum, grade, subjectTitle, lessonId]);
 
   useEffect(() => {
     if (lesson && lesson.type === "quiz") {
