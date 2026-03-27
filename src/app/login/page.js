@@ -13,6 +13,8 @@ export default function Home() {
     const [showWelcome, setShowWelcome] = useState(false);
     const [welcomeUserData, setWelcomeUserData] = useState(null);
     const [availableGrades, setAvailableGrades] = useState([]);
+    const [detectedRole, setDetectedRole] = useState("Student");
+    const [creatorRole, setCreatorRole] = useState("");
     useEffect(() => {
         const stored = localStorage.getItem("catUser");
         if (stored) {
@@ -30,8 +32,10 @@ export default function Home() {
             const res = await fetch(`/api/public/grades?code=${code}`);
             if (res.ok) {
                 const data = await res.json();
-                const grades = Array.isArray(data) ? data : [];
+                const grades = data.grades || [];
                 setAvailableGrades(grades);
+                setDetectedRole(data.role_to_grant || "Student");
+                setCreatorRole(data.creator_role || "");
                 
                 // Auto-select first available option
                 if (grades.length > 0) {
@@ -205,8 +209,10 @@ export default function Home() {
                                             <input type="text" placeholder="Cool alias" className="input-field py-3.5" value={formData.nickname} onChange={(e) => setFormData({ ...formData, nickname: e.target.value })} />
                                         </div>
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Working/Studying At</label>
-                                            <input type="text" placeholder="School name" className="input-field py-3.5" value={formData.school} onChange={(e) => setFormData({ ...formData, school: e.target.value })} />
+                                            <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">
+                                                {detectedRole === 'Headmaster' ? "Name of Your New School 🏫" : "Working/Studying At"}
+                                            </label>
+                                            <input type="text" placeholder={detectedRole === 'Headmaster' ? "Ex. Royal Academy" : "School name"} className="input-field py-3.5" value={formData.school} onChange={(e) => setFormData({ ...formData, school: e.target.value })} />
                                         </div>
                                         <div className="flex flex-col gap-1.5 md:col-span-2">
                                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">School Email (@educ.ph)</label>
@@ -240,47 +246,62 @@ export default function Home() {
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-6 w-full animate-fade-in">
-                                    <div className="bg-primary-light/40 border border-primary/20 rounded-[2rem] p-6 text-center shadow-inner relative overflow-hidden">
-                                        <div className="absolute -right-4 -bottom-4 text-6xl opacity-10">🎓</div>
-                                        <p className="text-[10px] font-extrabold text-primary uppercase tracking-widest mb-2 relative z-10">Academy Suggestion</p>
-                                        <p className="text-slate-800 font-extrabold text-xl relative z-10">You belong in:</p>
-                                        <div className="inline-block bg-white px-6 py-2 rounded-full mt-3 font-bold text-primary shadow-sm border border-primary/10 relative z-10">
-                                            {formData.grade || "Processing... 🐾"}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 text-left w-full mt-2">
-                                        <label className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Select Your Room</label>
-                                        <div className="relative">
-                                            <select
-                                                className="input-field appearance-none cursor-pointer pr-12 font-bold"
-                                                value={formData.grade}
-                                                onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                                            >
-                                                {availableGrades.length > 0 ? (
-                                                    availableGrades.map(g => (
-                                                        <optgroup key={g.id} label={g.name} className="font-bold text-slate-800">
-                                                            {g.school_sections?.map(s => (
-                                                                <option key={s.id} value={`${g.name} - ${s.name}`} className="font-medium">
-                                                                    {s.name}
-                                                                </option>
-                                                            ))}
-                                                            {(!g.school_sections || g.school_sections.length === 0) && (
-                                                                <option value={g.name} className="font-medium">Standard Room</option>
-                                                            )}
-                                                        </optgroup>
-                                                    ))
-                                                ) : (
-                                                    <option disabled value="">
-                                                       {formData.verificationCode ? "School Structure Not Found 😿" : "Enter Invite Code first..."}
-                                                    </option>
-                                                )}
-                                            </select>
-                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 font-bold">
-                                                ▼
+                                    {detectedRole === 'Headmaster' ? (
+                                        <div className="bg-white/60 border border-primary/20 rounded-[2rem] p-8 text-center shadow-sm">
+                                            <div className="text-4xl mb-4">🏛️</div>
+                                            <p className="text-slate-800 font-bold text-lg">Foundation Ready!</p>
+                                            <div className="inline-flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-2 border border-green-200">
+                                                <span>✓</span> Verified {creatorRole} Invite
                                             </div>
+                                            <p className="text-slate-500 text-sm mt-4">
+                                                As the Headmaster of <strong>{formData.school}</strong>, you'll be able to set up rooms, teachers, and curriculum once you enter your dashboard.
+                                            </p>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <>
+                                            <div className="bg-primary-light/40 border border-primary/20 rounded-[2rem] p-6 text-center shadow-inner relative overflow-hidden">
+                                                <div className="absolute -right-4 -bottom-4 text-6xl opacity-10">🎓</div>
+                                                <p className="text-[10px] font-extrabold text-primary uppercase tracking-widest mb-2 relative z-10">Academy Suggestion</p>
+                                                <p className="text-slate-800 font-extrabold text-xl relative z-10">You belong in:</p>
+                                                <div className="inline-block bg-white px-6 py-2 rounded-full mt-3 font-bold text-primary shadow-sm border border-primary/10 relative z-10">
+                                                    {formData.grade || "Processing... 🐾"}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 text-left w-full mt-2">
+                                                <label className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 ml-4">Select Your Room</label>
+                                                <div className="relative">
+                                                    <select
+                                                        className="input-field appearance-none cursor-pointer pr-12 font-bold"
+                                                        value={formData.grade}
+                                                        onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                                                    >
+                                                        {availableGrades.length > 0 ? (
+                                                            availableGrades.map(g => (
+                                                                <optgroup key={g.id} label={g.name} className="font-bold text-slate-800">
+                                                                    {g.school_sections?.map(s => (
+                                                                        <option key={s.id} value={`${g.name} - ${s.name}`} className="font-medium">
+                                                                            {s.name}
+                                                                        </option>
+                                                                    ))}
+                                                                    {(!g.school_sections || g.school_sections.length === 0) && (
+                                                                        <option value={g.name} className="font-medium">Standard Room</option>
+                                                                    )}
+                                                                </optgroup>
+                                                            ))
+                                                        ) : (
+                                                            <option disabled value="">
+                                                            {formData.verificationCode ? "School Structure Not Found 😿" : "Enter Invite Code first..."}
+                                                            </option>
+                                                        )}
+                                                    </select>
+                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 font-bold">
+                                                        ▼
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
 
                                     <div className="flex gap-4 mt-6">
                                         <button className="flex-1 btn-secondary !px-4" onClick={() => setStep(1)}>Go Back</button>

@@ -25,33 +25,26 @@ export const calculateLevel = (totalXp) => {
 };
 
 export const getXpProgress = (totalXp) => {
-  let level = 1;
+  if (totalXp < 0) totalXp = 0;
+
+  let trueLevel = 1;
   let xpNeededForNext = BASE_XP;
   let accumulatedXp = 0;
 
-  while (totalXp >= accumulatedXp + xpNeededForNext && level < MAX_LEVEL) {
+  // Calculate the "theoretical" level without capping to find current progress
+  while (totalXp >= accumulatedXp + xpNeededForNext) {
     accumulatedXp += xpNeededForNext;
-    level++;
-    xpNeededForNext = BASE_XP + (level - 1) * INCREMENT;
-  }
-
-  // If at max level, progress is 100%
-  if (level === MAX_LEVEL) {
-    return {
-      level,
-      currentLevelXp: totalXp - accumulatedXp,
-      xpNeededForNext: "MAX",
-      percentage: 100
-    };
+    trueLevel++;
+    xpNeededForNext = BASE_XP + (trueLevel - 1) * INCREMENT;
   }
 
   const currentLevelXp = totalXp - accumulatedXp;
   const percentage = Math.min(Math.round((currentLevelXp / xpNeededForNext) * 100), 100);
 
   return {
-    level,
+    level: Math.min(trueLevel, MAX_LEVEL),
     currentLevelXp,
     xpNeededForNext,
-    percentage
+    percentage: (trueLevel >= MAX_LEVEL) ? Math.min(percentage, 99) : percentage // Keep it at 99% if at/over max to show it's "ongoing" or just let it hit 100
   };
 };
