@@ -60,6 +60,7 @@ export default function AdminDashboard() {
   const [stories, setStories] = useState([]);
   const [ratingData, setRatingData] = useState({ average: 0, count: 0 });
   const [newStory, setNewStory] = useState("");
+  const [ratingComment, setRatingComment] = useState("");
 
   const [curriculumConfig, setCurriculumConfig] = useState([]); // Array of { name, sections: [] }
   
@@ -91,9 +92,15 @@ export default function AdminDashboard() {
       // 1. REFRESH CURRENT USER FROM DATABASE
       const uOneRes = await fetch(`/api/users/${storedUser.id}`);
       const userLatest = await uOneRes.json();
+      
+      // Only update if something meaningful changed to avoid re-render loops
+      if (JSON.stringify(userLatest) !== JSON.stringify(currentUser)) {
+         const activeUser = { ...storedUser, ...userLatest };
+         localStorage.setItem("catUser", JSON.stringify(activeUser));
+         setCurrentUser(activeUser);
+      }
+      
       const activeUser = { ...storedUser, ...userLatest };
-      localStorage.setItem("catUser", JSON.stringify(activeUser));
-      setCurrentUser(activeUser);
 
       if (activeUser.role === 'Student') {
         router.push("/dashboard");
@@ -198,7 +205,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAllData(true);
-    const syncInterval = setInterval(() => fetchAllData(false), 15000);
+    const syncInterval = setInterval(() => fetchAllData(false), 20000);
     return () => clearInterval(syncInterval);
   }, [fetchAllData]);
 
@@ -843,9 +850,15 @@ export default function AdminDashboard() {
                            <span className="text-sm font-black text-indigo-500 bg-white px-3 py-1 rounded-lg shadow-sm border border-slate-100">{s.code}</span>
                         </div>
 
-                        <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest bg-white border border-slate-100 text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
-                          Manage Subject →
-                        </button>
+                        {(currentUser.role === 'Creator' || s.created_by == currentUser.id) ? (
+                          <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest bg-white border border-slate-100 text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
+                            Manage Subject →
+                          </button>
+                        ) : (
+                          <div className="w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-300 text-center bg-slate-50 border border-slate-100 italic">
+                            Official Archive • Read Only
+                          </div>
+                        )}
                         
                         <div className="absolute -bottom-6 -right-6 text-[8rem] opacity-[0.03] rotate-[-15deg] group-hover:rotate-0 transition-transform duration-700 pointer-events-none">{s.icon}</div>
                       </div>
@@ -887,18 +900,26 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-6">
-                           <button 
-                              className={`py-3 rounded-xl font-black text-[10px] uppercase tracking-widest backdrop-blur-md transition-all active:scale-95 ${selectedSubject.is_public ? 'bg-white text-amber-600 hover:bg-amber-50' : 'bg-white text-primary hover:bg-slate-50'}`}
-                              onClick={() => handleToggleVisibility(!selectedSubject.is_public)}
-                           >
-                              {selectedSubject.is_public ? "Go Private 🔒" : "Go Public 🌍"}
-                           </button>
-                           <button 
-                              className="py-3 bg-red-500/20 hover:bg-red-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/20"
-                              onClick={() => handleDeleteSubject(selectedSubject.id)}
-                           >
-                              Delete 🗑️
-                           </button>
+                           {(currentUser.role === 'Creator' || selectedSubject.created_by == currentUser.id) ? (
+                             <>
+                               <button 
+                                  className={`py-3 rounded-xl font-black text-[10px] uppercase tracking-widest backdrop-blur-md transition-all active:scale-95 ${selectedSubject.is_public ? 'bg-white text-amber-600 hover:bg-amber-50' : 'bg-white text-primary hover:bg-slate-50'}`}
+                                  onClick={() => handleToggleVisibility(!selectedSubject.is_public)}
+                               >
+                                  {selectedSubject.is_public ? "Go Private 🔒" : "Go Public 🌍"}
+                               </button>
+                               <button 
+                                  className="py-3 bg-red-500/20 hover:bg-red-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/20"
+                                  onClick={() => handleDeleteSubject(selectedSubject.id)}
+                               >
+                                  Delete 🗑️
+                               </button>
+                             </>
+                           ) : (
+                             <div className="col-span-2 py-3 bg-white/20 rounded-xl font-extrabold text-[10px] uppercase tracking-widest">
+                                Creator Only Access 🛡️
+                             </div>
+                           )}
                         </div>
                      </div>
                      <div className="absolute -bottom-10 -right-10 text-[15rem] opacity-10 rotate-12 pointer-events-none">{selectedSubject.icon}</div>
@@ -1484,27 +1505,43 @@ export default function AdminDashboard() {
                    </div>
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{ratingData.average || 0} / 5 ({ratingData.count || 0} Scholar Ratings)</p>
                    
-                   <div className="mt-4 flex flex-col items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-wider">Submit Your Academic Rating:</p>
-                      <div className="flex gap-2">
+                   <div className="mt-4 flex flex-col items-center bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 max-w-md w-full shadow-inner">
+                      <p className="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-wider">Institutional Feedback & Rating:</p>
+                      
+                      <textarea
+                         placeholder="Share your experience... (e.g. 'The transition was seamless!')"
+                         className="w-full p-4 rounded-2xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all font-medium text-slate-600 mb-4 min-h-[80px] bg-white text-sm"
+                         value={ratingComment}
+                         onChange={(e) => setRatingComment(e.target.value)}
+                      />
+
+                      <div className="flex gap-3">
                          {[1, 2, 3, 4, 5].map(s => (
                             <button 
                                key={s} 
                                onClick={async () => {
+                                  if (!ratingComment) {
+                                     alert("Please share a quick comment about your experience! 😸");
+                                     return;
+                                  }
                                   const res = await fetch("/api/ratings", {
                                      method: "POST",
                                      headers: { "Content-Type": "application/json" },
-                                     body: JSON.stringify({ userId: currentUser.id, rating: s })
+                                     body: JSON.stringify({ userId: currentUser.id, rating: s, comment: ratingComment })
                                   });
-                                  if (res.ok) fetchAllData(false);
-                                  alert("Rating submitted! ⭐");
+                                  if (res.ok) {
+                                     setRatingComment("");
+                                     fetchAllData(false);
+                                     alert("Academic rating & feedback recorded! ⭐");
+                                  }
                                }}
-                               className="text-2xl hover:scale-125 transition-transform origin-center"
+                               className="w-12 h-12 rounded-xl bg-white border border-slate-100 text-2xl hover:scale-125 hover:border-amber-200 hover:text-amber-400 transition-all shadow-sm flex items-center justify-center grayscale hover:grayscale-0"
                             >
                                ★
                             </button>
                          ))}
                       </div>
+                      <p className="text-[9px] font-bold text-slate-300 mt-4 italic">Press a star to submit your comment & rating</p>
                    </div>
                 </div>
              </div>

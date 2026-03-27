@@ -58,8 +58,16 @@ export default function ScholarLessonPage() {
   );
 
   const subjectsInGrade = localCurriculum[grade] || [];
-  const subjectData = subjectsInGrade.find(s => s.lessons?.some(l => l.id == lessonId)) || 
-                     subjectsInGrade.find(s => s.title === subjectTitle);
+  let subjectData = subjectsInGrade.find(s => s.lessons?.some(l => String(l.id) === String(lessonId))) || 
+                    subjectsInGrade.find(s => s.title === subjectTitle);
+
+  // Fallback: search ALL grades if not found (in case of grade mismatch)
+  if (!subjectData) {
+    Object.keys(localCurriculum).forEach(g => {
+       const found = localCurriculum[g].find(s => s.lessons?.some(l => String(l.id) === String(lessonId)));
+       if (found) subjectData = found;
+    });
+  }
   
   const lessonsInSubject = subjectData?.lessons || [];
   const lesson = lessonsInSubject.find(l => l.id == lessonId);
@@ -109,7 +117,8 @@ export default function ScholarLessonPage() {
       });
       const data = await res.json();
       setCorrectAnswer(data.correctAnswer);
-      if (data.correct) setScore(score + 10);
+      // Ensure comparison is flexible (string vs string)
+      if (data.correct || String(option) === String(data.correctAnswer)) setScore(score + 10);
     } catch (e) {
       console.error("Answer check failed", e);
     }
